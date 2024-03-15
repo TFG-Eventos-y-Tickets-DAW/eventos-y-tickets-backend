@@ -6,42 +6,8 @@ on:
             - main
 
 jobs:
-    unit-tests:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-            - name: Run tests
-              run: echo running tests...
-
-    deploy-dev:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-            - name: Create terraform backend.tf
-              run: |
-                  cat >backend.tf <<EOL
-                  terraform {
-                   backend "remote" {
-                           hostname     = "app.terraform.io"
-                           organization = "EventosyTickets"
-
-                           workspaces {
-                           name = "eventos-y-tickets-backend-dev"
-                           }
-                       }
-                   }
-            - name: Set terraform prod token
-              run: echo "TF_TOKEN_app_terraform_io=${{secrets.TFE_TOKEN}}" >> $GITHUB_ENV
-            - name: terraform init
-              run: terraform init
-            - name: terraform apply
-              run: terraform apply -auto-approve
-
     deploy-prod:
         runs-on: ubuntu-latest
-        needs: deploy-dev
         steps:
             - name: Checkout
               uses: actions/checkout@v4
