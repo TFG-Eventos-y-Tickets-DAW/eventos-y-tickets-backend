@@ -15,7 +15,7 @@ jobs:
               env:
                   TF_TOKEN_app_terraform_io: ${{ secrets.TFE_TOKEN }}
               run: |
-                  echo $TF_TOKEN_app_terraform_io
+                  echo ${{ secrets.TFE_TOKEN }}
                   cat >backend.tf <<EOL
                   terraform {
                    backend "remote" {
@@ -28,6 +28,7 @@ jobs:
                        }
                    }
                    EOL
+                   cat backend.tf
             - name: ls test
               run: ls
             - name: terraform init
