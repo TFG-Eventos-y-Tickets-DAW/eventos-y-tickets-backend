@@ -1,0 +1,40 @@
+name: Terraform Deployment
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy-prod:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Set Terraform token
+              env:
+                  TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+              run: |
+                  cat >~/.terraformrc <<EOL
+                  credentials "app.terraform.io" {
+                      token = "${TFE_TOKEN}"
+                  }
+                  EOL
+            - name: Create backend.tf
+              run: |
+                  cat >backend.tf <<EOL
+                  terraform {
+                   backend "remote" {
+                           hostname     = "app.terraform.io"
+                           organization = "EventosyTickets"
+
+                           workspaces {
+                           name = "eventos-y-tickets-backend-prod"
+                           }
+                       }
+                   }
+                   EOL
+            - name: ls test
+              run: ls
+            - name: terraform init
+              run: terraform init
