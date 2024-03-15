@@ -11,16 +11,9 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-            - name: Set Terraform token
+            - name: Set Terraform token and backend.tf
               env:
-                  TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
-              run: |
-                  cat >~/.terraformrc <<EOL
-                  credentials "app.terraform.io" {
-                      token = "${TFE_TOKEN}"
-                  }
-                  EOL
-            - name: Create backend.tf
+                  TF_TOKEN_app_terraform_io: ${{ secrets.TFE_TOKEN }}
               run: |
                   cat >backend.tf <<EOL
                   terraform {
