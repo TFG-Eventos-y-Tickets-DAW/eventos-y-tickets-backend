@@ -28,3 +28,7 @@ jobs:
               run: echo "TF_TOKEN_app_terraform_io=${{secrets.TFE_TOKEN}}" >> $GITHUB_ENV
             - name: terraform init
               run: terraform init
+            - name: terraform plan
+              run: terraform plan
+            - name: terraform apply
+              run: terraform apply -auto-approve
