@@ -15,6 +15,7 @@ jobs:
               env:
                   TF_TOKEN_app_terraform_io: ${{ secrets.TFE_TOKEN }}
               run: |
+                  echo $TF_TOKEN_app_terraform_io
                   cat >backend.tf <<EOL
                   terraform {
                    backend "remote" {
