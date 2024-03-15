@@ -13,9 +13,8 @@ jobs:
               uses: actions/checkout@v4
             - name: Set Terraform token and backend.tf
               env:
-                  TF_TOKEN_app_terraform_io: ${{ secrets.TFE_TOKEN }}
+                  TF_TOKEN_app_terraform_io: ${{secrets.TFE_TOKEN}}
               run: |
-                  echo ${{ secrets.TFE_TOKEN }}
                   cat >backend.tf <<EOL
                   terraform {
                    backend "remote" {
@@ -28,8 +27,7 @@ jobs:
                        }
                    }
                    EOL
-                   cat backend.tf
-            - name: ls test
-              run: ls
+            - name: cat
+              run: cat backend.tf
             - name: terraform init
               run: terraform init
