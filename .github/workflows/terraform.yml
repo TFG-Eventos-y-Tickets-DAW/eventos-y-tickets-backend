@@ -26,8 +26,9 @@ jobs:
                            }
                        }
                    }
-                   EOL
             - name: cat
               run: cat backend.tf
+            - name: test
+              run: echo $TF_TOKEN_app_terraform_io
             - name: terraform init
               run: terraform init
