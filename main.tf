@@ -1,7 +1,5 @@
-resource "aws_vpc" "main_vpc" {
-  cidr_block = "10.0.0.0/16"
+module "api_gateway" {
+  source = "./api_gateway"
 
-  tags = {
-    "foo" = "bar"
-  }
+  environment = var.environment
 }
