@@ -40,8 +40,4 @@ module "api_gateway" {
   #       issuer           = "https://sts.windows.net/aaee026e-8f37-410e-8869-72d9154873e4/"
   #     }
   #   }
-
-  tags = {
-    Environment = var.environment
-  }
 }
