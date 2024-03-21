@@ -17,11 +17,9 @@ module "api_gateway" {
   # Routes and integrations
   integrations = {
     "GET /" = {
-      #   lambda_arn             = "arn:aws:lambda:eu-west-1:052235179155:function:my-function"
-      #   payload_format_version = "2.0"
-      #   timeout_milliseconds   = 12000
-      integration_type = "HTTP_PROXY"
-      integration_uri  = "https://ip-ranges.amazonaws.com/ip-ranges.json"
+      lambda_arn             = var.sign_in_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
     }
 
     # "GET /some-route-with-authorizer" = {

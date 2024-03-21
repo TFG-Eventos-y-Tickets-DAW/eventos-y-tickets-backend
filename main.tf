@@ -1,5 +1,9 @@
 module "api_gateway" {
   source = "./api_gateway"
 
-  environment = var.environment
+  sign_in_lambda_arn = module.lambdas.sign_in_lambda_arn
+}
+
+module "lambdas" {
+  source = "./lambdas_infra"
 }
