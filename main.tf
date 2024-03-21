@@ -6,4 +6,6 @@ module "api_gateway" {
 
 module "lambdas" {
   source = "./lambdas_infra"
+
+  api_gateway_execution_arn = module.api_gateway.api_gateway_execution_arn
 }
