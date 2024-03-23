@@ -9,3 +9,11 @@ output "vpc_private_db_subnets_ids" {
 output "lambda_sg_id" {
   value = aws_security_group.lambdas_sg.id
 }
+
+output "rds_sg_id" {
+  value = aws_security_group.rds_sg.id
+}
+
+output "vpc_private_db_subnet_group_name" {
+  value = module.vpc.database_subnet_group_name
+}

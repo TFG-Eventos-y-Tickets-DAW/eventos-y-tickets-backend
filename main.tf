@@ -17,3 +17,13 @@ module "vpc" {
 
   environment = var.environment
 }
+
+module "rds" {
+  source = "./rds"
+
+  environment          = var.environment
+  db_password          = var.db_password
+  db_private_subnets   = module.vpc.vpc_private_db_subnets_ids
+  db_subnet_group_name = module.vpc.vpc_private_db_subnet_group_name
+  rds_sg_id            = module.vpc.rds_sg_id
+}
