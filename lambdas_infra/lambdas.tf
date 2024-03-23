@@ -20,4 +20,14 @@ module "sign_in_lambda" {
   vpc_subnet_ids         = var.vpc_private_subnets_ids
   vpc_security_group_ids = [var.lambda_sg_id]
   attach_network_policy  = true
+
+  layers = [
+    module.lambda_req_mysql_jwt_layer.lambda_layer_arn
+  ]
+
+  environment_variables = {
+    DB_HOST     = split(":", var.db_host)[0]
+    DB_PORT     = var.db_port
+    DB_USERNAME = var.db_username
+  }
 }

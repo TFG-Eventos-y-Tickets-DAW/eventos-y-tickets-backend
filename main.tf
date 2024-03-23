@@ -10,6 +10,10 @@ module "lambdas" {
   api_gateway_execution_arn = module.api_gateway.api_gateway_execution_arn
   vpc_private_subnets_ids   = module.vpc.vpc_private_subnets_ids
   lambda_sg_id              = module.vpc.lambda_sg_id
+  db_host                   = module.rds.db_endpoint
+  db_username               = module.rds.db_username
+  db_port                   = module.rds.db_port
+  db_instance_resource_id   = module.rds.db_instance_resource_id
 }
 
 module "vpc" {
