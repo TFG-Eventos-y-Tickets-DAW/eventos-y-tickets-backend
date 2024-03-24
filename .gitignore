@@ -36,3 +36,5 @@ terraform.rc
 .env
 backend.tf
 .terraform
+venv/
+sandbox.py

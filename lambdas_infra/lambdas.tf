@@ -28,6 +28,6 @@ module "sign_in_lambda" {
   environment_variables = {
     DB_HOST     = split(":", var.db_host)[0]
     DB_PORT     = var.db_port
-    DB_USERNAME = var.db_username
+    DB_USERNAME = "${var.db_username}-lambda"
   }
 }
