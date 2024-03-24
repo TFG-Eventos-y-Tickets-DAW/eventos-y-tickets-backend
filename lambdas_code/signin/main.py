@@ -1,33 +1,72 @@
-import requests
-import os
-import boto3
-import pymysql.cursors
+import json
+import bcrypt
+
+from common.http_utils import generic_server_error, http_error_response
+from common.rds_conn import create_rds_connection
+from common.jwt_utils import create_jwt_token, get_jwt_secret
+from common.schema import is_valid_schema_request
+from common.api_json_schemas import SIGN_IN_SCHEMA
+
+connection = create_rds_connection()
+jwt_secret = get_jwt_secret()
 
 
-rds_client = boto3.client("rds")
-auth_token = rds_client.generate_db_auth_token(
-    os.environ["DB_HOST"], int(os.environ["DB_PORT"]), os.environ["DB_USERNAME"]
-)
-ssl = {"ca": "/opt/python/us-east-1-bundle.pem"}
-connection = pymysql.connect(
-    host=os.environ["DB_HOST"],
-    user=os.environ["DB_USERNAME"],
-    password=auth_token,
-    database="eventosytickets",
-    charset="utf8mb4",
-    cursorclass=pymysql.cursors.DictCursor,
-    ssl=ssl,
-)
+@is_valid_schema_request(SIGN_IN_SCHEMA)
+def lambda_handler(event, _):
+    body = json.loads(event.get("body", {})) or {}
+
+    try:
+        return find_and_authenticate_user(body)
+    except Exception as exc:
+        print(exc)
+        return generic_server_error()
 
 
-def lambda_handler(event, context):
-    print("Received event: ", event)
-    with connection.cursor() as cursor:
-        # Read a single record
-        sql = "SELECT * FROM `users` WHERE `email`=%s"
-        cursor.execute(sql, ("foo@bar.com",))
-        result = cursor.fetchone()
-        print(result)
+def find_and_authenticate_user(body):
+    email = body.get("email")
+    body_password = body.get("password")
 
-    res = requests.get("https://jsonplaceholder.typicode.com/todos/1")
-    return res.json()
+    with connection.cursor() as cur:
+        select_sql = "SELECT `id`, `first_name`, `last_name`, `email`, `password`, `is_anonymous` FROM `users` WHERE `email`=%s AND `is_anonymous`=%s"
+        cur.execute(select_sql, (email, False))
+        result = cur.fetchone()
+
+    if result is None:
+        return http_error_response(
+            status_code=200,
+            error_type="INCORRECT_CREDENTIALS",
+            error_detail="The email or password provided is incorrect.",
+        )
+
+    hashed_password = result.get("password")
+
+    if not is_correct_password(hashed_password, body_password):
+        return http_error_response(
+            status_code=200,
+            error_type="INCORRECT_CREDENTIALS",
+            error_detail="The email or password provided is incorrect.",
+        )
+
+    data_to_encode = {
+        "firstName": result["first_name"],
+        "lastName": result["last_name"],
+        "email": result["email"],
+        "isAnonymous": result["is_anonymous"],
+        "userId": result["id"],
+    }
+
+    jwt_token = create_jwt_token(data_to_encode, jwt_secret)
+
+    return {
+        "accessToken": jwt_token,
+        "firstName": result["first_name"],
+        "lastName": result["last_name"],
+        "email": result["email"],
+        "userId": result["id"],
+    }
+
+
+def is_correct_password(hashed_password: str, body_password: str):
+    return bcrypt.checkpw(
+        bytes(body_password, "utf-8"), bytes(hashed_password, "utf-8")
+    )

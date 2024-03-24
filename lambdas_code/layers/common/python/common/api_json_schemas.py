@@ -9,3 +9,12 @@ SIGN_UP_SCHEMA = {
     },
     "required": ["firstName", "lastName", "password", "email", "isAnonymous"],
 }
+
+SIGN_IN_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "password": {"type": "string"},
+        "email": {"type": "string", "format": "email"},
+    },
+    "required": ["password", "email"],
+}

@@ -16,7 +16,7 @@ module "api_gateway" {
 
   # Routes and integrations
   integrations = {
-    "GET /" = {
+    "POST /api/v1/user/signin" = {
       lambda_arn             = var.sign_in_lambda_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
@@ -24,6 +24,12 @@ module "api_gateway" {
 
     "POST /api/v1/user/signup" = {
       lambda_arn             = var.sign_up_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+    }
+
+    "GET /api/v1/user/me" = {
+      lambda_arn             = var.about_me_lambda_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
     }

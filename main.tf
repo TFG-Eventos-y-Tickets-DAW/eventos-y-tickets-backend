@@ -1,8 +1,9 @@
 module "api_gateway" {
   source = "./api_gateway"
 
-  sign_in_lambda_arn = module.lambdas.sign_in_lambda_arn
-  sign_up_lambda_arn = module.lambdas.sign_up_lambda_arn
+  sign_in_lambda_arn  = module.lambdas.sign_in_lambda_arn
+  sign_up_lambda_arn  = module.lambdas.sign_up_lambda_arn
+  about_me_lambda_arn = module.lambdas.about_me_lambda_arn
 }
 
 module "lambdas" {
