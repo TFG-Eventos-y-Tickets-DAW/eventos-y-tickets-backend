@@ -22,6 +22,12 @@ module "api_gateway" {
       timeout_milliseconds   = 12000
     }
 
+    "POST /api/v1/user/signup" = {
+      lambda_arn             = var.sign_up_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+    }
+
     # "GET /some-route-with-authorizer" = {
     #   integration_type = "HTTP_PROXY"
     #   integration_uri  = "some url"

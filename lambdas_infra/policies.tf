@@ -17,3 +17,8 @@ resource "aws_iam_role_policy_attachment" "allow_rds_attachment_sign_in_lambda" 
   role       = module.sign_in_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
 }
+
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_sign_up_lambda" {
+  role       = module.sign_up_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
