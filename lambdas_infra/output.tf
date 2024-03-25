@@ -9,3 +9,7 @@ output "sign_up_lambda_arn" {
 output "about_me_lambda_arn" {
   value = module.about_me_lambda.lambda_function_arn
 }
+
+output "authorizer_lambda_invoke_arn" {
+  value = module.authorizer_lambda.lambda_function_invoke_arn
+}

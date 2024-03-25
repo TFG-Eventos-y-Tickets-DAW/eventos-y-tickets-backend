@@ -54,3 +54,8 @@ resource "aws_iam_role_policy_attachment" "allow_jwt_secret_parameter_attachment
   role       = module.about_me_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_jwt_secret_parameter_store_policy.arn
 }
+
+resource "aws_iam_role_policy_attachment" "allow_jwt_secret_parameter_attachment_authorizer_lambda" {
+  role       = module.authorizer_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_jwt_secret_parameter_store_policy.arn
+}

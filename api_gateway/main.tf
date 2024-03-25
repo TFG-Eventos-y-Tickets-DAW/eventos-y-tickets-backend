@@ -32,22 +32,20 @@ module "api_gateway" {
       lambda_arn             = var.about_me_lambda_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-    }
 
-    # "GET /some-route-with-authorizer" = {
-    #   integration_type = "HTTP_PROXY"
-    #   integration_uri  = "some url"
-    #   authorizer_key   = "azure"
-    # }
+      authorization_type = "CUSTOM"
+      authorizer_key     = "lambda-authorizer"
+    }
   }
 
-  #   authorizers = {
-  #     "azure" = {
-  #       authorizer_type  = "JWT"
-  #       identity_sources = "$request.header.Authorization"
-  #       name             = "azure-auth"
-  #       audience         = ["d6a38afd-45d6-4874-d1aa-3c5c558aqcc2"]
-  #       issuer           = "https://sts.windows.net/aaee026e-8f37-410e-8869-72d9154873e4/"
-  #     }
-  #   }
+  authorizers = {
+    "lambda-authorizer" = {
+      authorizer_type                   = "REQUEST"
+      authorizer_uri                    = var.authorizer_lambda_invoke_arn
+      identity_sources                  = ["$request.header.Authorization"]
+      authorizer_payload_format_version = "2.0"
+      name                              = "lambda-authorizer"
+      enable_simple_responses           = true
+    }
+  }
 }
