@@ -1,5 +1,6 @@
 module "authorizer_lambda" {
-  source = "terraform-aws-modules/lambda/aws"
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.2.3"
 
   function_name = "authorizer-lambda"
   description   = "Authorizer Lambda"

@@ -36,6 +36,24 @@ module "api_gateway" {
       authorization_type = "CUSTOM"
       authorizer_key     = "lambda-authorizer"
     }
+
+    "GET /api/v1/event/get_presigned_url" = {
+      lambda_arn             = var.generate_presigned_url_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+
+      authorization_type = "CUSTOM"
+      authorizer_key     = "lambda-authorizer"
+    }
+
+    "POST /api/v1/event/create" = {
+      lambda_arn             = var.create_event_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+
+      authorization_type = "CUSTOM"
+      authorizer_key     = "lambda-authorizer"
+    }
   }
 
   authorizers = {

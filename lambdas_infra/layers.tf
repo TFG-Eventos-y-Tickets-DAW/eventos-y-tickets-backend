@@ -1,5 +1,6 @@
 module "lambda_req_mysql_jwt_layer" {
-  source = "terraform-aws-modules/lambda/aws"
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.2.3"
 
   create_layer        = true
   layer_name          = "python-req-mysql-jwt"
@@ -10,7 +11,8 @@ module "lambda_req_mysql_jwt_layer" {
 }
 
 module "lambda_common_code" {
-  source = "terraform-aws-modules/lambda/aws"
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.2.3"
 
   create_layer        = true
   layer_name          = "python-common-logic-code"

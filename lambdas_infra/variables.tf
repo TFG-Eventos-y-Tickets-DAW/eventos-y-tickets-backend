@@ -25,3 +25,15 @@ variable "db_port" {
 variable "db_instance_resource_id" {
   type = string
 }
+
+variable "eventos_y_tickets_media_bucket_arn" {
+  type = string
+}
+
+variable "eventos_y_tickets_media_bucket_name" {
+  type = string
+}
+
+variable "event_images_bucket_arn" {
+  type = string
+}
