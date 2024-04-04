@@ -32,6 +32,7 @@ def is_valid_schema_request(schema: dict):
                 )
             except Exception as exc:
                 print(exc)
+                raise exc
                 return http_error_response(
                     status_code=500,
                     error_type=INTERNAL_SERVER_ERROR,

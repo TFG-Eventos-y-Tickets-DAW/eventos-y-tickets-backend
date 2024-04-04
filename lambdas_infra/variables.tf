@@ -37,3 +37,11 @@ variable "eventos_y_tickets_media_bucket_name" {
 variable "event_images_bucket_arn" {
   type = string
 }
+
+variable "event_pagination_dynamodb_table_arn" {
+  type = string
+}
+
+variable "event_pagination_dynamodb_table_name" {
+  type = string
+}

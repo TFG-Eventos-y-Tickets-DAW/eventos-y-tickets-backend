@@ -18,6 +18,22 @@ variable "create_event_lambda_arn" {
   type = string
 }
 
+variable "update_event_lambda_arn" {
+  type = string
+}
+
+variable "get_event_lambda_arn" {
+  type = string
+}
+
+variable "my_events_lambda_arn" {
+  type = string
+}
+
+variable "public_events_lambda_arn" {
+  type = string
+}
+
 variable "authorizer_lambda_invoke_arn" {
   type = string
 }

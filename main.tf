@@ -6,6 +6,10 @@ module "api_gateway" {
   about_me_lambda_arn               = module.lambdas.about_me_lambda_arn
   generate_presigned_url_lambda_arn = module.lambdas.generate_presigned_url_lambda_arn
   create_event_lambda_arn           = module.lambdas.create_event_lambda_arn
+  update_event_lambda_arn           = module.lambdas.update_event_lambda_arn
+  get_event_lambda_arn              = module.lambdas.get_event_lambda_arn
+  my_events_lambda_arn              = module.lambdas.my_events_lambda_arn
+  public_events_lambda_arn          = module.lambdas.public_events_lambda_arn
   authorizer_lambda_invoke_arn      = module.lambdas.authorizer_lambda_invoke_arn
 }
 
@@ -22,7 +26,9 @@ module "lambdas" {
   eventos_y_tickets_media_bucket_arn  = module.s3.event_images_bucket_arn
   eventos_y_tickets_media_bucket_name = module.s3.event_images_bucket_name
 
-  event_images_bucket_arn = module.s3.event_images_bucket_arn
+  event_images_bucket_arn              = module.s3.event_images_bucket_arn
+  event_pagination_dynamodb_table_arn  = module.dynamodb.event_pagination_dynamodb_table_arn
+  event_pagination_dynamodb_table_name = module.dynamodb.event_pagination_dynamodb_table_name
 }
 
 module "vpc" {
@@ -43,4 +49,8 @@ module "rds" {
 
 module "s3" {
   source = "./s3"
+}
+
+module "dynamodb" {
+  source = "./dynamodb"
 }

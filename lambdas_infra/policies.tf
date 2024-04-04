@@ -28,6 +28,26 @@ resource "aws_iam_role_policy_attachment" "allow_rds_attachment_create_event_lam
   policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_update_event_lambda" {
+  role       = module.update_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_get_event_lambda" {
+  role       = module.get_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_my_events_lambda" {
+  role       = module.my_events_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_public_events_lambda" {
+  role       = module.public_events_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
 data "aws_ssm_parameter" "jwt_secret_sign_parameter" {
   name = "/jwt/creds/secret"
 }
@@ -70,6 +90,11 @@ resource "aws_iam_role_policy_attachment" "allow_jwt_secret_parameter_attachment
   policy_arn = aws_iam_policy.allow_jwt_secret_parameter_store_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_jwt_secret_parameter_attachment_my_events_lambda" {
+  role       = module.my_events_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_jwt_secret_parameter_store_policy.arn
+}
+
 data "aws_iam_policy_document" "allow_generate_presigned_s3_url_json_policy" {
   statement {
     effect = "Allow"
@@ -90,4 +115,28 @@ resource "aws_iam_policy" "allow_generate_presigned_s3_policy" {
 resource "aws_iam_role_policy_attachment" "allow_generate_presigned_s3_attachment_generate_presigned_lambda" {
   role       = module.generate_presigned_url_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_generate_presigned_s3_policy.arn
+}
+
+
+data "aws_iam_policy_document" "allow_event_pagitation_dynamodb_access_json_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem"
+    ]
+    resources = [var.event_pagination_dynamodb_table_arn]
+  }
+}
+
+resource "aws_iam_policy" "allow_event_pagitation_dynamodb_access_policy" {
+  name        = "allow-event-pagination-dynamodb-table"
+  description = "Allow access to Event Pagination DynamoDB Table"
+  policy      = data.aws_iam_policy_document.allow_event_pagitation_dynamodb_access_json_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "allow_event_pagitation_dynamodb_access_policy_attachment_public_events_lambda" {
+  role       = module.public_events_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_event_pagitation_dynamodb_access_policy.arn
 }

@@ -1,10 +1,19 @@
 from common.constants.event_categories import EVENT_CATEGORIES_ID_BY_NAME
-from common.constants.event_statuses import EVENT_STATUS_ID_BY_NAME
+from common.constants.event_statuses import EVENT_STATUS_ID_BY_NAME, PUBLISHED
+from common.event_utils import get_user_id_from_jwt
+from common.event_validation import (
+    are_tickets_properly_configured,
+    has_all_necessary_publish_event_data,
+    has_paid_tickets_with_payout_instrument_assigned,
+    is_payout_instrument_valid,
+    is_prevalidate_request,
+    is_valid_event_date_configuration,
+)
 from common.constants.ticket_types import FREE_TICKET, PAID_TICKET
 from common.error_types import INVALID_REQUEST
 from common.http_utils import http_error_response, generic_server_error
 from common.rds_conn import create_rds_connection
-from common.jwt_utils import get_jwt_secret, decode_jwt_token
+from common.jwt_utils import get_jwt_secret
 from common.schema import is_valid_schema_request
 from common.api_json_schemas import CREATE_EVENT_SCHEMA
 
@@ -23,39 +32,80 @@ def lambda_handler(event, _):
     body = json.loads(event.get("body", {})) or {}
     headers = event.get("headers", {})
 
-    if is_prevalidate_request(body):
-        # If it reached until this point, then schema is ok
-        # So we don't perform database operations
-        return {"preValidate": True, "message": "Event pre-validation accepted."}
+    current_user_id = get_user_id_from_jwt(headers, jwt_secret)
 
-    current_user_id = get_user_id_from_jwt(headers)
+    # Publish status data validation
+    desired_event_status = body.get("status")
+    is_free_event = body.get("tickets", {}).get("price", 0) <= 0
+    if desired_event_status == PUBLISHED and not has_all_necessary_publish_event_data(
+        body, is_free_event
+    ):
+        return http_error_response(
+            status_code=400,
+            error_type=INVALID_REQUEST,
+            error_detail="You can't publish the event, please fill all required fields: `category`, `tickets`, `payoutInstrument`, `country`, `startsAt`, `endsAt`.",
+        )
 
     # Start by creating the payout instrument record
     # since it will be directly referenced by the event record
     payout_instrument = body.get("payoutInstrument", {}) or {}
-    if not is_payout_instrument_valid(payout_instrument):
+    if not is_payout_instrument_valid(
+        payout_instrument, is_free_event, desired_event_status
+    ):
         return http_error_response(
             status_code=400,
             error_type=INVALID_REQUEST,
             error_detail="The payout instrument should be an IBAN + SWIFT/BIC or PayPal email but not both.",
         )
 
-    try:
-        payout_instrument_id = create_payout_instrument(
-            payout_instrument, current_user_id
+    # Date validation startsAt vs endsAt, treated as UTC time
+    is_valid_datetime, error_detail = is_valid_event_date_configuration(body)
+    if not is_valid_datetime:
+        return http_error_response(
+            status_code=400,
+            error_type=INVALID_REQUEST,
+            error_detail=error_detail,
         )
+
+    tickets = body.get("tickets", {})
+    are_tickets_valid, ticket_err = are_tickets_properly_configured(body, tickets)
+    if not are_tickets_valid:
+        return http_error_response(
+            status_code=400,
+            error_type=INVALID_REQUEST,
+            error_detail=ticket_err,
+        )
+
+    if not has_paid_tickets_with_payout_instrument_assigned(
+        tickets, payout_instrument, desired_event_status
+    ):
+        return http_error_response(
+            status_code=400,
+            error_type=INVALID_REQUEST,
+            error_detail="A payout instrument is required when setting paid tickets.",
+        )
+
+    if is_prevalidate_request(body):
+        # If it reached until this point, then schema is ok
+        # So we don't perform database operations
+        return {"preValidate": True, "message": "Event pre-validation accepted."}
+
+    try:
+        event_id = create_event(body, current_user_id)
     except Exception as exc:
         print(exc)
         return generic_server_error()
 
     try:
-        event_id = create_event(body, current_user_id, payout_instrument_id)
+        if not is_free_event:
+            create_payout_instrument(payout_instrument, current_user_id, event_id)
     except Exception as exc:
         print(exc)
         return generic_server_error()
 
     try:
-        create_tickets(body, event_id)
+        if tickets:
+            create_tickets(body, event_id)
     except Exception as exc:
         print(exc)
         return generic_server_error()
@@ -66,65 +116,27 @@ def lambda_handler(event, _):
     return {"eventId": event_id, "message": "Event successfully created!"}
 
 
-def is_prevalidate_request(body):
-    return bool(body.get("preValidate"))
-
-
-def get_user_id_from_jwt(headers):
-    jwt_token = headers.get("authorization", "").split(" ")[
-        -1
-    ]  # Get Token (Bearer <token>)
-    return decode_jwt_token(jwt_token, jwt_secret).get("userId")
-
-
-def is_payout_instrument_valid(payout_instrument):
-    """
-    When creating a new event, a payout instrument is optional
-    so, an empty payout_instrument is valid.
-    If a payout instrument is specified, then it should be
-    iban + swift/bic OR a PayPal Email, but not both.
-    """
-    if not payout_instrument:
-        return True
-
-    iban = payout_instrument.get("iban", "")
-    swiftbic = payout_instrument.get("swiftbic", "")
-    paypal_email = payout_instrument.get("paypalEmail", "")
-
-    if (iban != "" or swiftbic != "") and paypal_email != "":
-        return False
-
-    if (iban != "" and swiftbic == "") or (iban == "" and swiftbic != ""):
-        return False
-
-    return True
-
-
-def create_payout_instrument(payout_instrument, owner_id):
-    payout_instrument_id = None
-
+def create_payout_instrument(payout_instrument, owner_id, event_id):
     with connection.cursor() as cur:
-        sql = "INSERT INTO `payout_instruments` (`owner_id`, `iban`, `swift_bic`, `paypal_email`, `is_deleted`) VALUES (%s, %s, %s, %s, %s)"
+        sql = "INSERT INTO `payout_instruments` (`owner_id`, `event_id`, `iban`, `swift_bic`, `paypal_email`, `is_deleted`) VALUES (%s, %s, %s, %s, %s, %s)"
         cur.execute(
             sql,
             (
                 owner_id,
+                event_id,
                 payout_instrument.get("iban", ""),
                 payout_instrument.get("swiftbic", ""),
                 payout_instrument.get("paypalEmail", ""),
                 False,
             ),
         )
-        payout_instrument_id = cur.lastrowid
-
-    return payout_instrument_id
 
 
-def create_event(body, owner_id, payout_instrument_id):
+def create_event(body, owner_id):
     event_id = None
 
     with connection.cursor() as cur:
-        sql = "INSERT INTO `events` (`owner_id`, `title`, `description`, `img_src`, `starts_at`, `ends_at`, `status_id`, `category_id`, `country`, `currency`, `payout_instrument_id`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO `events` (`owner_id`, `title`, `description`, `img_src`, `starts_at`, `ends_at`, `status_id`, `category_id`, `country`, `currency`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         cur.execute(
             sql,
             (
@@ -138,7 +150,6 @@ def create_event(body, owner_id, payout_instrument_id):
                 EVENT_CATEGORIES_ID_BY_NAME.get(body.get("category", "OTHER")),
                 body.get("country"),
                 body.get("currency"),
-                payout_instrument_id,
             ),
         )
         event_id = cur.lastrowid
