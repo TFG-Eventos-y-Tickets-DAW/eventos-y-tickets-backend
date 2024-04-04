@@ -43,7 +43,7 @@ def lambda_handler(event, _):
         return http_error_response(
             status_code=400,
             error_type=INVALID_REQUEST,
-            error_detail="You can't publish the event, please fill all required fields: `category`, `tickets`, `payoutInstrument`, `country`, `startsAt`, `endsAt`.",
+            error_detail="You can't publish the event, please fill all required fields: `address`, `category`, `tickets`, `payoutInstrument`, `country`, `startsAt`, `endsAt`.",
         )
 
     # Start by creating the payout instrument record
@@ -136,13 +136,14 @@ def create_event(body, owner_id):
     event_id = None
 
     with connection.cursor() as cur:
-        sql = "INSERT INTO `events` (`owner_id`, `title`, `description`, `img_src`, `starts_at`, `ends_at`, `status_id`, `category_id`, `country`, `currency`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO `events` (`owner_id`, `title`, `description`, `address`, `img_src`, `starts_at`, `ends_at`, `status_id`, `category_id`, `country`, `currency`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         cur.execute(
             sql,
             (
                 owner_id,
                 body.get("title"),
                 body.get("description"),
+                body.get("address"),
                 body.get("imgSrc", EVENT_IMAGE_PLACEHOLDER),
                 body.get("startsAt"),
                 body.get("endsAt"),

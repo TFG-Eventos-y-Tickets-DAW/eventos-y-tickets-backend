@@ -36,6 +36,7 @@ CREATE_EVENT_SCHEMA = {
     "properties": {
         "title": {"type": "string", "minLength": 6},
         "description": {"type": "string", "minLength": 4},
+        "address": {"type": "string", "minLength": 4},
         "imgSrc": {"type": "string"},
         "startsAt": {"type": "string", "minLength": 6},
         "endsAt": {"type": "string", "minLength": 6},
@@ -81,6 +82,7 @@ UPDATE_EVENT_SCHEMA = {
     "properties": {
         "title": {"type": "string", "minLength": 6},
         "description": {"type": "string", "minLength": 4},
+        "address": {"type": "string", "minLength": 4},
         "imgSrc": {"type": "string"},
         "startsAt": {"type": "string", "minLength": 6},
         "endsAt": {"type": "string", "minLength": 6},

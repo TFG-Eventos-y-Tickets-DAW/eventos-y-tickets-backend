@@ -78,8 +78,16 @@ def has_all_necessary_publish_event_data(body, is_free_event):
     ends_at = body.get("endsAt")
     country = body.get("country")
     category = body.get("category")
+    address = body.get("address")
 
-    if not tickets or not starts_at or not ends_at or not country or not category:
+    if (
+        not tickets
+        or not starts_at
+        or not ends_at
+        or not country
+        or not category
+        or not address
+    ):
         # Required fields to publish not set
         return False
 

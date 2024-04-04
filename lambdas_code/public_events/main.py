@@ -134,7 +134,7 @@ def format_events(event_details: dict):
 
 def fetch_all_events():
     with connection.cursor() as cur:
-        select_sql = "SELECT e.id, e.owner_id, e.title, e.description, e.img_src, e.starts_at, e.ends_at, e.status_id, e.category_id, e.country, e.currency, e.created_at, t.price \
+        select_sql = "SELECT e.id, e.owner_id, e.title, e.description, e.address, e.img_src, e.starts_at, e.ends_at, e.status_id, e.category_id, e.country, e.currency, e.created_at, t.price \
             FROM events AS e \
             LEFT JOIN tickets AS t \
             ON e.id = t.event_id"
@@ -154,7 +154,7 @@ def fetch_all_events_with_filters(body):
     owner_id = body.get("ownerId")
 
     args_to_add = []
-    select_sql = "SELECT e.id, e.owner_id, e.title, e.description, e.img_src, e.starts_at, e.ends_at, e.status_id, e.category_id, e.country, e.currency, e.created_at, t.price \
+    select_sql = "SELECT e.id, e.owner_id, e.title, e.description, e.address, e.img_src, e.starts_at, e.ends_at, e.status_id, e.category_id, e.country, e.currency, e.created_at, t.price \
             FROM events AS e \
             LEFT JOIN tickets AS t \
             ON e.id = t.event_id"
