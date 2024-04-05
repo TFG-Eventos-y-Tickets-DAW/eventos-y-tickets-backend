@@ -55,3 +55,15 @@ module "s3" {
 module "dynamodb" {
   source = "./dynamodb"
 }
+
+module "oidc_github" {
+  source  = "unfunco/oidc-github/aws"
+  version = "1.7.1"
+
+  github_repositories = [
+    "TFG-Eventos-y-Tickets-DAW/eventos-y-tickets-frontend"
+  ]
+
+  iam_role_name        = "github_oidc"
+  iam_role_policy_arns = [module.s3.allow_full_access_to_react_bucket_policy_arn]
+}
