@@ -48,6 +48,11 @@ resource "aws_iam_role_policy_attachment" "allow_rds_attachment_public_events_la
   policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_delete_event_lambda" {
+  role       = module.delete_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
 data "aws_ssm_parameter" "jwt_secret_sign_parameter" {
   name = "/jwt/creds/secret"
 }
@@ -97,6 +102,11 @@ resource "aws_iam_role_policy_attachment" "allow_jwt_secret_parameter_attachment
 
 resource "aws_iam_role_policy_attachment" "allow_jwt_secret_parameter_attachment_update_event_lambda" {
   role       = module.update_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_jwt_secret_parameter_store_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_jwt_secret_parameter_attachment_delete_event_lambda" {
+  role       = module.delete_event_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_jwt_secret_parameter_store_policy.arn
 }
 

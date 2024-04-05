@@ -22,6 +22,10 @@ variable "update_event_lambda_arn" {
   type = string
 }
 
+variable "delete_event_lambda_arn" {
+  type = string
+}
+
 variable "get_event_lambda_arn" {
   type = string
 }

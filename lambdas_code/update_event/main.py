@@ -1,15 +1,13 @@
 from common.constants.event_categories import (
     EVENT_CATEGORIES_ID_BY_NAME,
-    EVENT_CATEGORIES_NAME_BY_ID,
 )
 from common.constants.event_statuses import (
     EVENT_STATUS_ID_BY_NAME,
-    EVENT_STATUS_NAME_BY_ID,
     PUBLISHED,
 )
 from common.constants.ticket_types import FREE_TICKET, PAID_TICKET
 from common.error_types import INVALID_REQUEST
-from common.event_utils import EVENT_IMAGE_PLACEHOLDER, get_user_id_from_jwt
+from common.event_utils import get_user_id_from_jwt
 from common.event_validation import (
     are_tickets_properly_configured,
     has_all_necessary_publish_event_data,

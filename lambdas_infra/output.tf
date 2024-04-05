@@ -22,6 +22,10 @@ output "update_event_lambda_arn" {
   value = module.update_event_lambda.lambda_function_arn
 }
 
+output "delete_event_lambda_arn" {
+  value = module.delete_event_lambda.lambda_function_arn
+}
+
 output "get_event_lambda_arn" {
   value = module.get_event_lambda.lambda_function_arn
 }

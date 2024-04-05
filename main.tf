@@ -7,6 +7,7 @@ module "api_gateway" {
   generate_presigned_url_lambda_arn = module.lambdas.generate_presigned_url_lambda_arn
   create_event_lambda_arn           = module.lambdas.create_event_lambda_arn
   update_event_lambda_arn           = module.lambdas.update_event_lambda_arn
+  delete_event_lambda_arn           = module.lambdas.delete_event_lambda_arn
   get_event_lambda_arn              = module.lambdas.get_event_lambda_arn
   my_events_lambda_arn              = module.lambdas.my_events_lambda_arn
   public_events_lambda_arn          = module.lambdas.public_events_lambda_arn

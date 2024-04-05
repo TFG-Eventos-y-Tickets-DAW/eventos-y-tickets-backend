@@ -73,6 +73,15 @@ module "api_gateway" {
       authorizer_key     = "lambda-authorizer"
     }
 
+    "DELETE /api/v1/event/{id}" = {
+      lambda_arn             = var.delete_event_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+
+      authorization_type = "CUSTOM"
+      authorizer_key     = "lambda-authorizer"
+    }
+
     "GET /api/v1/event/my_events" = {
       lambda_arn             = var.my_events_lambda_arn
       payload_format_version = "2.0"
