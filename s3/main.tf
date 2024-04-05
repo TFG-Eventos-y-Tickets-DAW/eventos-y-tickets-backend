@@ -31,6 +31,16 @@ resource "aws_s3_bucket_policy" "allow_access_from_everyone_policy" {
   policy = data.aws_iam_policy_document.allow_access_from_everyone.json
 }
 
+resource "aws_s3_bucket_cors_configuration" "event_images_bucket_cors_conf" {
+  bucket = aws_s3_bucket.event_images_bucket.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "POST", "GET"]
+    allowed_origins = ["*"]
+  }
+}
+
 data "aws_iam_policy_document" "allow_access_from_everyone" {
   statement {
     principals {
