@@ -19,6 +19,8 @@ import boto3
 import os
 
 connection = create_rds_connection()
+connection.autocommit(True)
+
 dynamodb_resource = boto3.resource("dynamodb")
 pagination_table = dynamodb_resource.Table(
     os.environ.get("EVENT_PAGINATION_TABLE_NAME", "")

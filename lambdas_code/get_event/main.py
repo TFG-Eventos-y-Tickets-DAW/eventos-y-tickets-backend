@@ -10,6 +10,7 @@ from common.rds_conn import create_rds_connection
 import humps
 
 connection = create_rds_connection()
+connection.autocommit(True)
 
 
 def lambda_handler(event, _):
