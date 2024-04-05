@@ -201,6 +201,8 @@ def fetch_all_events_with_filters(body):
 
     constructed_sql = select_sql + where_sql
 
+    print(f"Filter Query constructed: {constructed_sql}")
+
     with connection.cursor() as cur:
         cur.execute(constructed_sql, args_to_add)
         result = cur.fetchall()

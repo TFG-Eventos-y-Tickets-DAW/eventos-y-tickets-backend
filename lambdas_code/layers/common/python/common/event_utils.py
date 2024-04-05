@@ -2,6 +2,10 @@ from common.constants.event_categories import EVENT_CATEGORIES_NAME_BY_ID
 from common.constants.event_statuses import EVENT_STATUS_NAME_BY_ID
 from common.jwt_utils import decode_jwt_token
 
+EVENT_IMAGE_PLACEHOLDER = (
+    "https://eventos-y-tickets-event-images.s3.amazonaws.com/placeholder.jpg"
+)
+
 
 def format_and_prepare_event_details(event_details):
     if "category_id" in event_details:

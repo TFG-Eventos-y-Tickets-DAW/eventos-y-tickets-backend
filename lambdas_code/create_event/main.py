@@ -1,6 +1,6 @@
 from common.constants.event_categories import EVENT_CATEGORIES_ID_BY_NAME
 from common.constants.event_statuses import EVENT_STATUS_ID_BY_NAME, PUBLISHED
-from common.event_utils import get_user_id_from_jwt
+from common.event_utils import EVENT_IMAGE_PLACEHOLDER, get_user_id_from_jwt
 from common.event_validation import (
     are_tickets_properly_configured,
     has_all_necessary_publish_event_data,
@@ -21,10 +21,6 @@ import json
 
 connection = create_rds_connection()
 jwt_secret = get_jwt_secret()
-
-EVENT_IMAGE_PLACEHOLDER = (
-    "https://eventos-y-tickets-event-images.s3.amazonaws.com/placeholder.jpg"
-)
 
 
 @is_valid_schema_request(CREATE_EVENT_SCHEMA)

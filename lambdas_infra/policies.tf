@@ -95,6 +95,11 @@ resource "aws_iam_role_policy_attachment" "allow_jwt_secret_parameter_attachment
   policy_arn = aws_iam_policy.allow_jwt_secret_parameter_store_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_jwt_secret_parameter_attachment_update_event_lambda" {
+  role       = module.update_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_jwt_secret_parameter_store_policy.arn
+}
+
 data "aws_iam_policy_document" "allow_generate_presigned_s3_url_json_policy" {
   statement {
     effect = "Allow"
