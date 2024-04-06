@@ -1,17 +1,16 @@
 from common.api_json_schemas import PUBLIC_EVENTS_SCHEMA
 from common.constants.event_categories import EVENT_CATEGORIES_ID_BY_NAME
-from common.constants.event_statuses import EVENT_STATUS_ID_BY_NAME
-from common.constants.ticket_types import FREE, PAID, TICKET_TYPE_NAME_BY_ID
+from common.constants.event_statuses import DELETED_ID, EVENT_STATUS_ID_BY_NAME
+from common.constants.ticket_types import FREE, PAID
 from common.event_utils import (
     convert_datetime_to_strings,
     format_and_prepare_event_details,
+    get_ttl_for_the_next_minutes,
 )
 from common.http_utils import http_error_response, generic_server_error
-from common.jwt_utils import get_jwt_secret, decode_jwt_token
 from common.rds_conn import create_rds_connection
 from common.schema import is_valid_schema_request
 
-from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 import humps
 import json
@@ -114,13 +113,6 @@ def paginate_results(all_events, items_per_page):
     }
 
 
-def get_ttl_for_the_next_minutes(minutes: int):
-    utc_now = datetime.now(timezone.utc)
-    future_time = utc_now + timedelta(minutes=minutes)
-    epoch_future_time = int(future_time.timestamp())
-    return epoch_future_time
-
-
 def format_events(event_details: dict):
     new_event_details = event_details.copy()
     format_and_prepare_event_details(new_event_details)
@@ -139,8 +131,9 @@ def fetch_all_events():
         select_sql = "SELECT e.id, e.owner_id, e.title, e.description, e.address, e.img_src, e.starts_at, e.ends_at, e.status_id, e.category_id, e.country, e.currency, e.created_at, t.price \
             FROM events AS e \
             LEFT JOIN tickets AS t \
-            ON e.id = t.event_id"
-        cur.execute(select_sql)
+            ON e.id = t.event_id \
+            WHERE e.status_id != %s"
+        cur.execute(select_sql, (DELETED_ID,))
 
         result = cur.fetchall()
 
@@ -155,12 +148,12 @@ def fetch_all_events_with_filters(body):
     title = body.get("title")
     owner_id = body.get("ownerId")
 
-    args_to_add = []
+    args_to_add = [DELETED_ID]
     select_sql = "SELECT e.id, e.owner_id, e.title, e.description, e.address, e.img_src, e.starts_at, e.ends_at, e.status_id, e.category_id, e.country, e.currency, e.created_at, t.price \
             FROM events AS e \
             LEFT JOIN tickets AS t \
             ON e.id = t.event_id"
-    where_sql = " WHERE"
+    where_sql = " WHERE e.status_id != %s AND"
     if country:
         if any([status, category, type, title, owner_id]):
             where_sql += " e.country = %s AND"

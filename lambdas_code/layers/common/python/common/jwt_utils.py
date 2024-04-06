@@ -20,7 +20,11 @@ def create_jwt_token(data, secret):
 
 
 def decode_jwt_token(token, secret):
-    return jwt.decode(token, secret, algorithms="HS256")
+    try:
+        return jwt.decode(token, secret, algorithms="HS256")
+    except Exception as exc:
+        print(f"Unable to decode JWT Token: {exc}")
+        return {}
 
 
 def expired_invalid_jwt_http_response():

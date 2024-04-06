@@ -1,3 +1,4 @@
+from common.constants.event_statuses import DELETED_ID
 from common.error_types import INVALID_REQUEST
 from common.event_utils import get_user_id_from_jwt
 from common.event_validation import (
@@ -56,15 +57,14 @@ def lambda_handler(event, _):
 
 def delete_event(event_id):
     with connection.cursor() as cur:
-        sql_delete_tickets = "DELETE FROM `tickets` WHERE event_id = %s"
-        sql_delete_payout_instrument = (
-            "DELETE FROM `payout_instruments` WHERE event_id = %s"
+        sql_delete_event = "UPDATE `events` SET `status_id` = %s WHERE id = %s"
+        cur.execute(
+            sql_delete_event,
+            (
+                DELETED_ID,
+                event_id,
+            ),
         )
-        sql_delete_event = "DELETE FROM `events` WHERE id = %s"
-
-        cur.execute(sql_delete_payout_instrument, (event_id,))
-        cur.execute(sql_delete_tickets, (event_id,))
-        cur.execute(sql_delete_event, (event_id,))
 
 
 def has_sold_tickets_and_no_refunds(event_id):

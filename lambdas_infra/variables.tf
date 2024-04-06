@@ -45,3 +45,11 @@ variable "event_pagination_dynamodb_table_arn" {
 variable "event_pagination_dynamodb_table_name" {
   type = string
 }
+
+variable "order_sessions_dynamodb_table_arn" {
+  type = string
+}
+
+variable "order_sessions_dynamodb_table_name" {
+  type = string
+}

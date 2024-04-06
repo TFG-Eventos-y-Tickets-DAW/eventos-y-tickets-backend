@@ -158,3 +158,22 @@ PUBLIC_EVENTS_SCHEMA = {
     },
     "required": ["filters"],
 }
+
+
+CREATE_ORDER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "eventId": {"type": "integer", "minimum": 1},
+        "ticketId": {"type": "integer", "minimum": 1},
+        "quantity": {"type": "integer", "minimum": 1},
+        "attendee": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "minLength": 2},
+                "email": {"type": "string", "minLength": 2},
+            },
+            "required": ["name", "email"],
+        },
+    },
+    "required": ["eventId", "ticketId", "quantity", "attendee"],
+}

@@ -73,6 +73,12 @@ module "api_gateway" {
       authorizer_key     = "lambda-authorizer"
     }
 
+    "GET /api/v1/event/public/{id}" = {
+      lambda_arn             = var.get_public_event_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+    }
+
     "DELETE /api/v1/event/{id}" = {
       lambda_arn             = var.delete_event_lambda_arn
       payload_format_version = "2.0"
@@ -93,6 +99,12 @@ module "api_gateway" {
 
     "POST /api/v1/events" = {
       lambda_arn             = var.public_events_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+    }
+
+    "POST /api/v1/order/create" = {
+      lambda_arn             = var.create_order_lambda_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
     }

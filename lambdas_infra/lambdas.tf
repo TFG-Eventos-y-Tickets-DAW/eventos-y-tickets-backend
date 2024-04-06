@@ -388,3 +388,82 @@ module "delete_event_lambda" {
   timeout     = 12
   memory_size = 256
 }
+
+module "get_public_event_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.2.3"
+
+  function_name = "get-public-event-lambda"
+  description   = "Get Public Event details Lambda"
+  handler       = "main.lambda_handler"
+  runtime       = "python3.12"
+
+  source_path = "lambdas_code/get_public_event"
+
+  publish = true
+
+  allowed_triggers = {
+    APIGateway = {
+      service    = "apigateway"
+      source_arn = "${var.api_gateway_execution_arn}/*/*/*"
+    }
+  }
+
+  vpc_subnet_ids         = var.vpc_private_subnets_ids
+  vpc_security_group_ids = [var.lambda_sg_id]
+  attach_network_policy  = true
+
+  layers = [
+    module.lambda_req_mysql_jwt_layer.lambda_layer_arn,
+    module.lambda_common_code.lambda_layer_arn
+  ]
+
+  environment_variables = {
+    DB_HOST     = split(":", var.db_host)[0]
+    DB_PORT     = var.db_port
+    DB_USERNAME = "${var.db_username}-lambda"
+  }
+
+  timeout     = 12
+  memory_size = 256
+}
+
+module "create_order_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.2.3"
+
+  function_name = "create-order-lambda"
+  description   = "Create Order Lambda"
+  handler       = "main.lambda_handler"
+  runtime       = "python3.12"
+
+  source_path = "lambdas_code/create_order"
+
+  publish = true
+
+  allowed_triggers = {
+    APIGateway = {
+      service    = "apigateway"
+      source_arn = "${var.api_gateway_execution_arn}/*/*/*"
+    }
+  }
+
+  vpc_subnet_ids         = var.vpc_private_subnets_ids
+  vpc_security_group_ids = [var.lambda_sg_id]
+  attach_network_policy  = true
+
+  layers = [
+    module.lambda_req_mysql_jwt_layer.lambda_layer_arn,
+    module.lambda_common_code.lambda_layer_arn
+  ]
+
+  environment_variables = {
+    DB_HOST                   = split(":", var.db_host)[0]
+    DB_PORT                   = var.db_port
+    DB_USERNAME               = "${var.db_username}-lambda"
+    ORDER_SESSIONS_TABLE_NAME = var.order_sessions_dynamodb_table_name
+  }
+
+  timeout     = 12
+  memory_size = 256
+}

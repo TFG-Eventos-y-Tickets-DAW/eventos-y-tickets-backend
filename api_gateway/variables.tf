@@ -30,6 +30,14 @@ variable "get_event_lambda_arn" {
   type = string
 }
 
+variable "get_public_event_lambda_arn" {
+  type = string
+}
+
+variable "create_order_lambda_arn" {
+  type = string
+}
+
 variable "my_events_lambda_arn" {
   type = string
 }

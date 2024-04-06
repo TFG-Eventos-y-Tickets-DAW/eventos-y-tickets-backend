@@ -9,6 +9,8 @@ module "api_gateway" {
   update_event_lambda_arn           = module.lambdas.update_event_lambda_arn
   delete_event_lambda_arn           = module.lambdas.delete_event_lambda_arn
   get_event_lambda_arn              = module.lambdas.get_event_lambda_arn
+  get_public_event_lambda_arn       = module.lambdas.get_public_event_lambda_arn
+  create_order_lambda_arn           = module.lambdas.create_order_lambda_arn
   my_events_lambda_arn              = module.lambdas.my_events_lambda_arn
   public_events_lambda_arn          = module.lambdas.public_events_lambda_arn
   authorizer_lambda_invoke_arn      = module.lambdas.authorizer_lambda_invoke_arn
@@ -30,6 +32,8 @@ module "lambdas" {
   event_images_bucket_arn              = module.s3.event_images_bucket_arn
   event_pagination_dynamodb_table_arn  = module.dynamodb.event_pagination_dynamodb_table_arn
   event_pagination_dynamodb_table_name = module.dynamodb.event_pagination_dynamodb_table_name
+  order_sessions_dynamodb_table_arn    = module.dynamodb.order_sessions_dynamodb_table_arn
+  order_sessions_dynamodb_table_name   = module.dynamodb.order_sessions_dynamodb_table_name
 }
 
 module "vpc" {

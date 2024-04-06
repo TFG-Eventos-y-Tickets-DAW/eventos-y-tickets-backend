@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from common.constants.event_categories import EVENT_CATEGORIES_NAME_BY_ID
 from common.constants.event_statuses import EVENT_STATUS_NAME_BY_ID
 from common.jwt_utils import decode_jwt_token
@@ -46,3 +47,17 @@ def get_user_id_from_jwt(headers, jwt_secret):
         -1
     ]  # Get Token (Bearer <token>)
     return decode_jwt_token(jwt_token, jwt_secret).get("userId")
+
+
+def get_user_data_from_jwt(headers, jwt_secret):
+    jwt_token = headers.get("authorization", "").split(" ")[
+        -1
+    ]  # Get Token (Bearer <token>)
+    return decode_jwt_token(jwt_token, jwt_secret)
+
+
+def get_ttl_for_the_next_minutes(minutes: int):
+    utc_now = datetime.now(timezone.utc)
+    future_time = utc_now + timedelta(minutes=minutes)
+    epoch_future_time = int(future_time.timestamp())
+    return epoch_future_time

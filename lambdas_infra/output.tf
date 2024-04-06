@@ -30,6 +30,14 @@ output "get_event_lambda_arn" {
   value = module.get_event_lambda.lambda_function_arn
 }
 
+output "get_public_event_lambda_arn" {
+  value = module.get_public_event_lambda.lambda_function_arn
+}
+
+output "create_order_lambda_arn" {
+  value = module.create_order_lambda.lambda_function_arn
+}
+
 output "my_events_lambda_arn" {
   value = module.my_events_lambda.lambda_function_arn
 }

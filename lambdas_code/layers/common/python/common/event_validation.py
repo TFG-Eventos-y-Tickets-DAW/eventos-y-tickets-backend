@@ -163,3 +163,28 @@ def has_paid_tickets_with_payout_instrument_assigned(
         return False
 
     return True
+
+
+def retrieve_tickets_details_by_event_id(event_id, connection):
+    with connection.cursor() as cur:
+        select_sql = "SELECT `id`, `quantity`, `price`, `type_id` FROM `tickets` WHERE `event_id`=%s"
+        cur.execute(select_sql, (event_id,))
+        ticket_details = cur.fetchone()
+
+        select_sql = "SELECT COUNT(*) as orders_sold FROM `orders` WHERE `event_id`=%s"
+        cur.execute(select_sql, (event_id,))
+        order_details = cur.fetchone()
+
+        select_sql = "SELECT COUNT(*) as orders_refunded FROM `order_reversals` WHERE `event_id`=%s"
+        cur.execute(select_sql, (event_id,))
+        order_refund_details = cur.fetchone()
+
+        # TODO: take into consideration active checkout sessions from DynamoDB/ElastiCache (TBD)
+
+        ticket_details["quantityAvailable"] = (
+            ticket_details["quantity"]
+            - order_details["orders_sold"]
+            + order_refund_details["orders_refunded"]
+        )
+
+    return ticket_details
