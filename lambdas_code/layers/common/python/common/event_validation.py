@@ -1,6 +1,8 @@
 from common.constants.event_statuses import PUBLISHED
 from datetime import datetime, timezone
 
+from common.constants.order_statuses import COMPLETED_ID
+
 
 def is_payout_instrument_valid(payout_instrument, is_free_event, desired_event_status):
     """
@@ -171,8 +173,8 @@ def retrieve_tickets_details_by_event_id(event_id, connection):
         cur.execute(select_sql, (event_id,))
         ticket_details = cur.fetchone()
 
-        select_sql = "SELECT COUNT(*) as orders_sold FROM `orders` WHERE `event_id`=%s"
-        cur.execute(select_sql, (event_id,))
+        select_sql = "SELECT COUNT(*) as orders_sold FROM `orders` WHERE `event_id`=%s AND `status_id` = %s"
+        cur.execute(select_sql, (event_id, COMPLETED_ID))
         order_details = cur.fetchone()
 
         select_sql = "SELECT COUNT(*) as orders_refunded FROM `order_reversals` WHERE `event_id`=%s"

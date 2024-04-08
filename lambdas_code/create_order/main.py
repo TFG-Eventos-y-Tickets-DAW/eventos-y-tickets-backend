@@ -1,10 +1,8 @@
 from common.api_json_schemas import CREATE_ORDER_SCHEMA
+from common.constants.event_statuses import PUBLISHED_ID
 from common.constants.order_statuses import CREATED, CREATED_ID
-from common.constants.ticket_types import TICKET_TYPE_NAME_BY_ID
 from common.error_types import INVALID_REQUEST
 from common.event_utils import (
-    convert_datetime_to_strings,
-    format_and_prepare_event_details,
     get_ttl_for_the_next_minutes,
     get_user_data_from_jwt,
 )
@@ -18,7 +16,6 @@ from common.rds_conn import create_rds_connection
 from common.schema import is_valid_schema_request
 from uuid import uuid4
 
-import humps
 import json
 import boto3
 import os
@@ -45,6 +42,15 @@ def lambda_handler(event, _):
             error_type="NOT_FOUND",
             error_detail="The event id passed was not found or it was malformed.",
         )
+
+    if event_details.get("status_id") != PUBLISHED_ID:
+        return http_error_response(
+            status_code=400,
+            error_type=INVALID_REQUEST,
+            error_detail="You can't create an order if the event is not PUBLISHED.",
+        )
+
+    # TODO: Free Order scenario -> create order directly.
 
     # Check if there are available tickets
     tickets_details = retrieve_tickets_details_by_event_id(
@@ -131,6 +137,7 @@ def start_order_session(event_details, user_id, body, total_amount):
         "quantity": str(body.get("quantity")),
         "ticketId": str(body.get("ticketId")),
         "totalAmount": str(total_amount),
+        "currency": str(event_details.get("currency", "")),
         "payerId": str(user_id),
         "payeeId": str(event_details["owner_id"]),
         "attendee": body.get("attendee", {}),

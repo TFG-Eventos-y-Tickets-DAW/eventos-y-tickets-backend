@@ -11,6 +11,7 @@ module "api_gateway" {
   get_event_lambda_arn              = module.lambdas.get_event_lambda_arn
   get_public_event_lambda_arn       = module.lambdas.get_public_event_lambda_arn
   create_order_lambda_arn           = module.lambdas.create_order_lambda_arn
+  pay_order_lambda_arn              = module.lambdas.pay_order_lambda_arn
   my_events_lambda_arn              = module.lambdas.my_events_lambda_arn
   public_events_lambda_arn          = module.lambdas.public_events_lambda_arn
   authorizer_lambda_invoke_arn      = module.lambdas.authorizer_lambda_invoke_arn

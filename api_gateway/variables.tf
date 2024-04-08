@@ -38,6 +38,10 @@ variable "create_order_lambda_arn" {
   type = string
 }
 
+variable "pay_order_lambda_arn" {
+  type = string
+}
+
 variable "my_events_lambda_arn" {
   type = string
 }

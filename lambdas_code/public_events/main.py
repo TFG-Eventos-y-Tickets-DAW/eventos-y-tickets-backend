@@ -59,7 +59,8 @@ def lambda_handler(event, _):
 
 def find_events_by_pagination_token(pagination_token):
     response = pagination_table.get_item(
-        Key={"tokenId": pagination_token}, AttributesToGet=["payload", "nextTokenId"]
+        Key={"tokenId": pagination_token},
+        AttributesToGet=["payload", "pageNum", "nextTokenId"],
     )
 
     if "Item" not in response:
@@ -71,11 +72,12 @@ def find_events_by_pagination_token(pagination_token):
 
     events = json.loads(response.get("Item", {}).get("payload", "[]"))
     next_token = response.get("Item", {}).get("nextTokenId") or None
+    page_num = response.get("Item", {}).get("pageNum")
 
     # Clean up token record
     pagination_table.delete_item(Key={"tokenId": pagination_token})
 
-    return {"events": events, "nextPaginationToken": next_token}
+    return {"events": events, "nextPaginationToken": next_token, "pageNum": page_num}
 
 
 def paginate_results(all_events, items_per_page):
@@ -102,6 +104,7 @@ def paginate_results(all_events, items_per_page):
             Item={
                 "tokenId": current_pagination_token,
                 "payload": json.dumps(pagination_element),
+                "pageNum": i + 2,
                 "nextTokenId": next_token,
                 "ttl": get_ttl_for_the_next_minutes(30),
             }
@@ -109,6 +112,11 @@ def paginate_results(all_events, items_per_page):
 
     return {
         "events": first_result_to_be_sent,
+        "paginationTokensPerPage": [
+            {"pageNum": num + 2, "paginationToken": token}
+            for (num, token) in enumerate(pagination_tokens)
+        ],
+        "pageNum": 1,
         "nextPaginationToken": pagination_tokens[0],
     }
 

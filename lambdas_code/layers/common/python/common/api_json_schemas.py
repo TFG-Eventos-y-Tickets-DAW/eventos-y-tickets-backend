@@ -177,3 +177,29 @@ CREATE_ORDER_SCHEMA = {
     },
     "required": ["eventId", "ticketId", "quantity", "attendee"],
 }
+
+PAY_ORDER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "eventId": {"type": "integer", "minimum": 1},
+        "paymentMethod": {
+            "type": "string",
+            "enum": ["CREDIT", "PAYPAL"],
+        },
+        "paymentMethodDetails": {
+            "type": "object",
+            "properties": {
+                "cardNumber": {"type": "string", "minLength": 16, "maxLength": 16},
+                "expiry": {
+                    "type": "string",
+                    "pattern": "\\d{4}-\\d{2}",
+                    "minLength": 7,
+                    "maxLength": 7,
+                },
+                "cvv": {"type": "string", "minLength": 3, "maxLength": 4},
+                "cardholderName": {"type": "string", "minLength": 4, "maxLength": 128},
+            },
+        },
+    },
+    "required": ["eventId", "paymentMethod", "paymentMethodDetails"],
+}

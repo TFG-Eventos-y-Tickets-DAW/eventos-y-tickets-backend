@@ -63,6 +63,11 @@ resource "aws_iam_role_policy_attachment" "allow_rds_attachment_create_order_lam
   policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_pay_order_lambda" {
+  role       = module.pay_order_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
 data "aws_ssm_parameter" "jwt_secret_sign_parameter" {
   name = "/jwt/creds/secret"
 }
@@ -192,4 +197,41 @@ resource "aws_iam_policy" "allow_order_sessions_dynamodb_access_policy" {
 resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_policy_attachment_create_order_lambda" {
   role       = module.create_order_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_order_sessions_dynamodb_access_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_policy_attachment_pay_order_lambda" {
+  role       = module.pay_order_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_order_sessions_dynamodb_access_policy.arn
+}
+
+data "aws_ssm_parameter" "paypal_api_user" {
+  name = "/paypal/api/username"
+}
+
+data "aws_ssm_parameter" "paypal_api_password" {
+  name = "/paypal/api/password"
+}
+
+data "aws_iam_policy_document" "allow_paypal_secrets_parameter_store_json_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameter"
+    ]
+    resources = [
+      data.aws_ssm_parameter.paypal_api_user.arn,
+      data.aws_ssm_parameter.paypal_api_password.arn
+    ]
+  }
+}
+
+resource "aws_iam_policy" "allow_paypal_secrets_parameter_store_policy" {
+  name        = "allow_paypal_secrets_parameter_store_policy"
+  description = "Allow PayPal Secrets SSM"
+  policy      = data.aws_iam_policy_document.allow_paypal_secrets_parameter_store_json_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "allow_paypal_secrets_parameter_attachment_pay_order_lambda" {
+  role       = module.pay_order_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_paypal_secrets_parameter_store_policy.arn
 }

@@ -38,6 +38,10 @@ output "create_order_lambda_arn" {
   value = module.create_order_lambda.lambda_function_arn
 }
 
+output "pay_order_lambda_arn" {
+  value = module.pay_order_lambda.lambda_function_arn
+}
+
 output "my_events_lambda_arn" {
   value = module.my_events_lambda.lambda_function_arn
 }
