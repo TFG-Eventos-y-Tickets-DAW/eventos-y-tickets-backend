@@ -9,10 +9,18 @@ from common.event_validation import (
 )
 from common.http_utils import http_error_response, generic_server_error
 from common.rds_conn import create_rds_connection
+from boto3.dynamodb.conditions import Key
 import humps
+import boto3
+import os
 
 connection = create_rds_connection()
 connection.autocommit(True)
+
+dynamodb_resource = boto3.resource("dynamodb")
+order_sessions_table = dynamodb_resource.Table(
+    os.environ.get("ORDER_SESSIONS_TABLE_NAME", "")
+)
 
 
 def lambda_handler(event, _):
@@ -36,7 +44,7 @@ def lambda_handler(event, _):
     # Retrieve tickets configuration information
     try:
         tickets_details = retrieve_tickets_details_by_event_id(
-            event_details["id"], connection
+            event_details["id"], connection, order_sessions_table
         )
         if tickets_details is not None:
             tickets_details["type"] = TICKET_TYPE_NAME_BY_ID[tickets_details["type_id"]]

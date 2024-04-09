@@ -54,7 +54,7 @@ def lambda_handler(event, _):
 
     # Check if there are available tickets
     tickets_details = retrieve_tickets_details_by_event_id(
-        event_details["id"], connection
+        event_details["id"], connection, order_sessions_table
     )
     if tickets_details.get("quantityAvailable") <= 0:
         return http_error_response(

@@ -40,4 +40,15 @@ resource "aws_dynamodb_table" "order_sessions_dynamodb_table" {
     attribute_name = "ttl"
     enabled        = true
   }
+
+  # Adding eventId GSI so we can query in a efficient way 
+  # how many order sessions are for one event
+  global_secondary_index {
+    name               = "EventIdIndex"
+    hash_key           = "eventId"
+    write_capacity     = 5
+    read_capacity      = 5
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["ttl"]
+  }
 }

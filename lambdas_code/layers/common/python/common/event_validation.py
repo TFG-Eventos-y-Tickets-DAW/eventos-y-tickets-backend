@@ -1,7 +1,8 @@
 from common.constants.event_statuses import PUBLISHED
+from common.constants.order_statuses import COMPLETED_ID
 from datetime import datetime, timezone
 
-from common.constants.order_statuses import COMPLETED_ID
+from boto3.dynamodb.conditions import Key
 
 
 def is_payout_instrument_valid(payout_instrument, is_free_event, desired_event_status):
@@ -167,7 +168,7 @@ def has_paid_tickets_with_payout_instrument_assigned(
     return True
 
 
-def retrieve_tickets_details_by_event_id(event_id, connection):
+def retrieve_tickets_details_by_event_id(event_id, connection, order_sessions_table):
     with connection.cursor() as cur:
         select_sql = "SELECT `id`, `quantity`, `price`, `type_id` FROM `tickets` WHERE `event_id`=%s"
         cur.execute(select_sql, (event_id,))
@@ -181,10 +182,16 @@ def retrieve_tickets_details_by_event_id(event_id, connection):
         cur.execute(select_sql, (event_id,))
         order_refund_details = cur.fetchone()
 
-        # TODO: take into consideration active checkout sessions from DynamoDB/ElastiCache (TBD)
+        # We also take into consideration active Order Sessions for the event
+        response = order_sessions_table.query(
+            IndexName="EventIdIndex",
+            KeyConditionExpression=Key("eventId").eq(str(event_id)),
+        )
+        active_order_sessions_count = response.get("Count", 0)
 
         ticket_details["quantityAvailable"] = (
             ticket_details["quantity"]
+            - active_order_sessions_count
             - order_details["orders_sold"]
             + order_refund_details["orders_refunded"]
         )

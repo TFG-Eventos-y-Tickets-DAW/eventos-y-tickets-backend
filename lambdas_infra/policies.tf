@@ -182,9 +182,13 @@ data "aws_iam_policy_document" "allow_order_sessions_dynamodb_access_json_policy
     actions = [
       "dynamodb:GetItem",
       "dynamodb:PutItem",
-      "dynamodb:DeleteItem"
+      "dynamodb:DeleteItem",
+      "dynamodb:Query",
     ]
-    resources = [var.order_sessions_dynamodb_table_arn]
+    resources = [
+      var.order_sessions_dynamodb_table_arn,
+      "${var.order_sessions_dynamodb_table_arn}/index/*" # Including indexes
+    ]
   }
 }
 
@@ -201,6 +205,11 @@ resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_
 
 resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_policy_attachment_pay_order_lambda" {
   role       = module.pay_order_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_order_sessions_dynamodb_access_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_policy_attachment_get_public_event_lambda" {
+  role       = module.get_public_event_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_order_sessions_dynamodb_access_policy.arn
 }
 
