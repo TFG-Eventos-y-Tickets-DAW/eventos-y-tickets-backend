@@ -42,6 +42,14 @@ output "pay_order_lambda_arn" {
   value = module.pay_order_lambda.lambda_function_arn
 }
 
+output "get_paypal_order_status_lambda_arn" {
+  value = module.get_paypal_order_status_lambda.lambda_function_arn
+}
+
+output "capture_paypal_order_lambda_arn" {
+  value = module.capture_paypal_order_lambda.lambda_function_arn
+}
+
 output "my_events_lambda_arn" {
   value = module.my_events_lambda.lambda_function_arn
 }

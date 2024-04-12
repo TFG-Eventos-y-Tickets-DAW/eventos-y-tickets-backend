@@ -203,3 +203,11 @@ PAY_ORDER_SCHEMA = {
     },
     "required": ["eventId", "paymentMethod", "paymentMethodDetails"],
 }
+
+CAPTURE_PAYPAL_ORDER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "paypalOrderId": {"type": "string", "minLength": 6},
+    },
+    "required": ["paypalOrderId"],
+}

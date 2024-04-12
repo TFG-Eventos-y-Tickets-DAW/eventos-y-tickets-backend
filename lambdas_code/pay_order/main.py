@@ -5,14 +5,13 @@ from common.constants.order_statuses import (
     ORDER_STATUS_ID_BY_NAME,
     PENDING_ID,
 )
-from common.error_types import INVALID_REQUEST
+from common.constants.payment_methods import CREDIT, PAYPAL
+from common.error_types import INVALID_REQUEST, PAYMENT_FAILED
 from common.http_utils import http_error_response, generic_server_error
 from common.payment_method_validation import validate_payment_method
 from common.paypal.client import PayPalClient
 from common.paypal.constants import (
-    JOURNAL_FAILURE,
-    JOURNAL_REQUEST,
-    JOURNAL_RESPONSE,
+    PAYER_ACTION_REQUIRED,
     PAYPAL_COMPLETED,
 )
 from common.rds_conn import create_rds_connection
@@ -30,7 +29,7 @@ order_sessions_table = dynamodb_resource.Table(
 )
 
 # PayPal Processor
-paypal_client = PayPalClient()
+paypal_client = PayPalClient(connection)
 
 
 @is_valid_schema_request(PAY_ORDER_SCHEMA)
@@ -58,92 +57,57 @@ def lambda_handler(event, _):
         print(f"An error ocurred while creating order {order_id}: {exc}")
         return generic_server_error()
 
-    # We create a journal record, evidence of the first request sent to PayPal
+    # We are now attempting to start a credit transaction with paypal
     try:
-        paypal_client.create_journal_record(
-            connection=connection,
-            order_id=database_order_id,
+        paypal_status, response_data = paypal_client.process_order(
             payment_method=payment_method,
-            journal_type=JOURNAL_REQUEST,
-        )
-        connection.commit()
-    except Exception as exc:
-        print(f"An error ocurred while creating PayPal Request Journal record. - {exc}")
-        return generic_server_error()
-
-    # We are now attempting to start a transaction with paypal
-    try:
-        paypal_status, response_data = paypal_client.process_credit_order(
             payment_method_details=payment_method_details,
             order_metadata=order_session,
             order_id=database_order_id,
             event_id=event_id,
+            order_session_id=order_id,
         )
 
-        # TODO: support for PayPal Redirected payment status (pending external action) `PAYER_ACTION_REQUIRED`
-        if paypal_status != PAYPAL_COMPLETED:
+        if paypal_status != PAYPAL_COMPLETED and paypal_status != PAYER_ACTION_REQUIRED:
             update_order_status_in_database(
                 database_order_id, ORDER_STATUS_ID_BY_NAME.get(paypal_status, FAILED_ID)
             )
-            # Create journal record for failed transaction along with error details
-            paypal_client.create_journal_record(
-                connection=connection,
-                order_id=database_order_id,
-                payment_method=payment_method,
-                journal_type=JOURNAL_FAILURE,
-                status=paypal_status,
-                error_type=response_data.get("error_type"),
-                error_details=response_data.get("error_details")
-            )
-            connection.commit()
-
             return http_error_response(
                 status_code=500,
-                error_type="PAYMENT_FAILED",
+                error_type=PAYMENT_FAILED,
                 error_detail=f"The payment failed with status: {paypal_status} - {response_data.get("error_details")}",
             )
     except Exception as exc:
         print(f"An error ocurred while attempting to process a payment. - {exc}")
         return generic_server_error()
 
-    # We create a journal record, evidence of the response received by PayPal
     try:
-        paypal_client.create_journal_record(
-            connection=connection,
-            order_id=database_order_id,
-            payment_method=payment_method,
-            journal_type=JOURNAL_RESPONSE,
-            status=paypal_status,
-            paypal_order_id=response_data.get("paypal_order_id"),
-            paypal_fee=response_data.get("paypal_fee"),
-            card_last_digits=response_data.get("card_last_digits"),
-            card_brand=response_data.get("card_brand"),
-        )
-        connection.commit()
-    except Exception as exc:
-        print(
-            f"An error ocurred while creating PayPal Response Journal record. - {exc}"
-        )
-        return generic_server_error()
-
-    try:
-        update_order_status_in_database(database_order_id, COMPLETED_ID)
-        connection.commit()
+        if payment_method == CREDIT:
+            update_order_status_in_database(database_order_id, COMPLETED_ID)
+            connection.commit()
     except Exception as exc:
         print(f"Error while updating order status - {exc}")
         return generic_server_error()
 
-    # Finally, Clean up order session
-    delete_order_session(order_id, event_id)
+    # Clean up order session for CREDIT - we want to keep order sessions for redirected payments (paypal)
+    if payment_method == CREDIT:
+        delete_order_session(order_id, event_id)
 
-    # Everything went ok at this point!
-    return {
+    return build_result_by_payment_method(payment_method, paypal_status, database_order_id, order_session, response_data)
+
+
+def build_result_by_payment_method(payment_method, paypal_status, database_order_id, order_session, response_data):
+    result = {
         "status": paypal_status,
         "orderId": database_order_id,
         "quantity": int(order_session.get("quantity")),
         "ticketId": int(order_session.get("ticketId")),
         "total": float(order_session.get("totalAmount")),
     }
+    if payment_method == PAYPAL:
+        result["redirectUrl"] = response_data.get("paypal_url_to_redirect", "")
+
+    return result
 
 
 def create_order_in_database(order_session):

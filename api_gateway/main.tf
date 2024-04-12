@@ -114,6 +114,18 @@ module "api_gateway" {
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
     }
+
+    "GET /api/v1/order/paypal/{id}" = {
+      lambda_arn             = var.get_paypal_order_status_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+    }
+
+    "POST /api/v1/order/paypal/capture" = {
+      lambda_arn             = var.capture_paypal_order_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+    }
   }
 
   authorizers = {

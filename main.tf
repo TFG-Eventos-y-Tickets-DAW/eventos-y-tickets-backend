@@ -1,20 +1,22 @@
 module "api_gateway" {
   source = "./api_gateway"
 
-  sign_in_lambda_arn                = module.lambdas.sign_in_lambda_arn
-  sign_up_lambda_arn                = module.lambdas.sign_up_lambda_arn
-  about_me_lambda_arn               = module.lambdas.about_me_lambda_arn
-  generate_presigned_url_lambda_arn = module.lambdas.generate_presigned_url_lambda_arn
-  create_event_lambda_arn           = module.lambdas.create_event_lambda_arn
-  update_event_lambda_arn           = module.lambdas.update_event_lambda_arn
-  delete_event_lambda_arn           = module.lambdas.delete_event_lambda_arn
-  get_event_lambda_arn              = module.lambdas.get_event_lambda_arn
-  get_public_event_lambda_arn       = module.lambdas.get_public_event_lambda_arn
-  create_order_lambda_arn           = module.lambdas.create_order_lambda_arn
-  pay_order_lambda_arn              = module.lambdas.pay_order_lambda_arn
-  my_events_lambda_arn              = module.lambdas.my_events_lambda_arn
-  public_events_lambda_arn          = module.lambdas.public_events_lambda_arn
-  authorizer_lambda_invoke_arn      = module.lambdas.authorizer_lambda_invoke_arn
+  sign_in_lambda_arn                 = module.lambdas.sign_in_lambda_arn
+  sign_up_lambda_arn                 = module.lambdas.sign_up_lambda_arn
+  about_me_lambda_arn                = module.lambdas.about_me_lambda_arn
+  generate_presigned_url_lambda_arn  = module.lambdas.generate_presigned_url_lambda_arn
+  create_event_lambda_arn            = module.lambdas.create_event_lambda_arn
+  update_event_lambda_arn            = module.lambdas.update_event_lambda_arn
+  delete_event_lambda_arn            = module.lambdas.delete_event_lambda_arn
+  get_event_lambda_arn               = module.lambdas.get_event_lambda_arn
+  get_public_event_lambda_arn        = module.lambdas.get_public_event_lambda_arn
+  create_order_lambda_arn            = module.lambdas.create_order_lambda_arn
+  pay_order_lambda_arn               = module.lambdas.pay_order_lambda_arn
+  get_paypal_order_status_lambda_arn = module.lambdas.get_paypal_order_status_lambda_arn
+  capture_paypal_order_lambda_arn    = module.lambdas.capture_paypal_order_lambda_arn
+  my_events_lambda_arn               = module.lambdas.my_events_lambda_arn
+  public_events_lambda_arn           = module.lambdas.public_events_lambda_arn
+  authorizer_lambda_invoke_arn       = module.lambdas.authorizer_lambda_invoke_arn
 }
 
 module "lambdas" {

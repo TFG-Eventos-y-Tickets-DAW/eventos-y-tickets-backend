@@ -20,6 +20,9 @@ module "aurora_db" {
     lambdas_ingress = {
       source_security_group_id = var.lambdas_sg_group_id
     }
+    bastion_host_access = {
+      source_security_group_id = "sg-0581ab2b0dc5e4f32"
+    }
   }
 
   monitoring_interval = 60

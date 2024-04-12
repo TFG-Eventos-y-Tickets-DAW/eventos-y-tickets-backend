@@ -42,6 +42,14 @@ variable "pay_order_lambda_arn" {
   type = string
 }
 
+variable "get_paypal_order_status_lambda_arn" {
+  type = string
+}
+
+variable "capture_paypal_order_lambda_arn" {
+  type = string
+}
+
 variable "my_events_lambda_arn" {
   type = string
 }

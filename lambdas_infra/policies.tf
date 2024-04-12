@@ -68,6 +68,11 @@ resource "aws_iam_role_policy_attachment" "allow_rds_attachment_pay_order_lambda
   policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_capture_paypal_order_lambda" {
+  role       = module.capture_paypal_order_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
 data "aws_ssm_parameter" "jwt_secret_sign_parameter" {
   name = "/jwt/creds/secret"
 }
@@ -213,6 +218,11 @@ resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_
   policy_arn = aws_iam_policy.allow_order_sessions_dynamodb_access_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_policy_attachment_capture_paypal_order_lambda" {
+  role       = module.capture_paypal_order_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_order_sessions_dynamodb_access_policy.arn
+}
+
 data "aws_ssm_parameter" "paypal_api_user" {
   name = "/paypal/api/username"
 }
@@ -242,5 +252,15 @@ resource "aws_iam_policy" "allow_paypal_secrets_parameter_store_policy" {
 
 resource "aws_iam_role_policy_attachment" "allow_paypal_secrets_parameter_attachment_pay_order_lambda" {
   role       = module.pay_order_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_paypal_secrets_parameter_store_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_paypal_secrets_parameter_attachment_get_paypal_order_lambda" {
+  role       = module.get_paypal_order_status_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_paypal_secrets_parameter_store_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_paypal_secrets_parameter_attachment_capture_paypal_order_lambda" {
+  role       = module.capture_paypal_order_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_paypal_secrets_parameter_store_policy.arn
 }
