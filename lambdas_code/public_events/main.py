@@ -194,9 +194,9 @@ def fetch_all_events_with_filters(body):
             where_sql += condition
     if title:
         if owner_id:
-            where_sql += " e.title LIKE CONCAT('%', %s, '%') AND"
+            where_sql += " e.title LIKE CONCAT('%%', %s, '%%') AND"
         else:
-            where_sql += " e.title LIKE CONCAT('%', %s, '%')"
+            where_sql += " e.title LIKE CONCAT('%%', %s, '%%')"
         args_to_add.append(title)
     if owner_id:
         where_sql += " e.owner_id = %s"
