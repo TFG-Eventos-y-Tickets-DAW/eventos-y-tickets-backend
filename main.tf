@@ -23,7 +23,7 @@ module "lambdas" {
   api_gateway_execution_arn           = module.api_gateway.api_gateway_execution_arn
   vpc_private_subnets_ids             = module.vpc.vpc_private_subnets_ids
   lambda_sg_id                        = module.vpc.lambda_sg_id
-  db_host                             = module.rds.db_endpoint
+  db_host                             = module.rds.db_aurora_endpoint
   db_username                         = module.rds.db_username
   db_port                             = module.rds.db_port
   db_instance_resource_id             = module.rds.db_instance_resource_id
@@ -46,11 +46,14 @@ module "vpc" {
 module "rds" {
   source = "./rds"
 
-  environment          = var.environment
-  db_password          = var.db_password
-  db_private_subnets   = module.vpc.vpc_private_db_subnets_ids
-  db_subnet_group_name = module.vpc.vpc_private_db_subnet_group_name
-  rds_sg_id            = module.vpc.rds_sg_id
+  environment                 = var.environment
+  db_password                 = var.db_password
+  db_private_subnets          = module.vpc.vpc_private_db_subnets_ids
+  db_subnet_group_name        = module.vpc.vpc_private_db_subnet_group_name
+  rds_sg_id                   = module.vpc.rds_sg_id
+  private_subnets_cidr_blocks = module.vpc.private_subnets_cidr_blocks
+  vpc_id                      = module.vpc.vpc_id
+  lambdas_sg_group_id         = module.vpc.lambda_sg_id
 }
 
 module "s3" {

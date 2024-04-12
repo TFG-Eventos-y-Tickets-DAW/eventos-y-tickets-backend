@@ -13,3 +13,7 @@ output "db_instance_resource_id" {
 output "db_port" {
   value = var.environment == "prod" ? "" : module.db[0].db_instance_port
 }
+
+output "db_aurora_endpoint" {
+  value = module.aurora_db.cluster_endpoint
+}

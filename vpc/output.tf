@@ -17,3 +17,11 @@ output "rds_sg_id" {
 output "vpc_private_db_subnet_group_name" {
   value = module.vpc.database_subnet_group_name
 }
+
+output "private_subnets_cidr_blocks" {
+  value = module.vpc.private_subnets_cidr_blocks
+}
+
+output "vpc_id" {
+  value = module.vpc.vpc_id
+}
