@@ -73,6 +73,11 @@ resource "aws_iam_role_policy_attachment" "allow_rds_attachment_capture_paypal_o
   policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_abandon_order_lambda" {
+  role       = module.abandon_order_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
 data "aws_ssm_parameter" "jwt_secret_sign_parameter" {
   name = "/jwt/creds/secret"
 }
@@ -220,6 +225,11 @@ resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_
 
 resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_policy_attachment_capture_paypal_order_lambda" {
   role       = module.capture_paypal_order_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_order_sessions_dynamodb_access_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_order_sessions_dynamodb_access_policy_attachment_abandon_order_lambda" {
+  role       = module.abandon_order_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_order_sessions_dynamodb_access_policy.arn
 }
 

@@ -1,12 +1,12 @@
-from common.constants.payment_methods import PAYPAL, SUPPORTED_PAYMENT_METHODS
+from common.constants.payment_methods import FREE, PAYPAL, SUPPORTED_PAYMENT_METHODS
 
 
 def validate_payment_method(payment_method, payment_method_details):
     if payment_method not in SUPPORTED_PAYMENT_METHODS:
         return False, "The payment method provided is not supported."
 
-    # No additional validation required for PayPal.
-    if payment_method == PAYPAL:
+    # No additional validation required for PayPal or FREE orders.
+    if payment_method == PAYPAL or payment_method == FREE:
         return True, ""
 
     # If we reach here, then the payment method is CREDIT

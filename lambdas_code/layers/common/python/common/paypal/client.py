@@ -269,7 +269,7 @@ class PayPalClient:
                 False,
                 status,
                 None,
-                "The order is not in a invalid state to be captured.",
+                "The order can't be captured since it is in an invalid state.",
             )
 
         if status == PAYPAL_COMPLETED:

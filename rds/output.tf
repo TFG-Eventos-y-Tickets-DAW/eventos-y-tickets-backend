@@ -1,19 +1,15 @@
-output "db_endpoint" {
-  value = var.environment == "prod" ? "" : module.db[0].db_instance_endpoint
-}
-
 output "db_username" {
-  value = var.environment == "prod" ? "" : module.db[0].db_instance_username
-}
-
-output "db_instance_resource_id" {
-  value = var.environment == "prod" ? "" : module.db[0].db_instance_resource_id
+  value = "eventosytickets"
 }
 
 output "db_port" {
-  value = var.environment == "prod" ? "" : module.db[0].db_instance_port
+  value = module.aurora_db.cluster_port
 }
 
 output "db_aurora_endpoint" {
   value = module.aurora_db.cluster_endpoint
+}
+
+output "db_instance_resource_id" {
+  value = module.aurora_db.cluster_resource_id
 }

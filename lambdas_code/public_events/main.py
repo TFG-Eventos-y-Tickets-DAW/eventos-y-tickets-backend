@@ -155,13 +155,24 @@ def fetch_all_events_with_filters(body):
     type = body.get("type")
     title = body.get("title")
     owner_id = body.get("ownerId")
+    most_recents = body.get("mostRecents")
+    most_popular = body.get("mostPopular")
 
     args_to_add = [DELETED_ID]
     select_sql = "SELECT e.id, e.owner_id, e.title, e.description, e.address, e.img_src, e.starts_at, e.ends_at, e.status_id, e.category_id, e.country, e.currency, e.created_at, t.price \
             FROM events AS e \
             LEFT JOIN tickets AS t \
             ON e.id = t.event_id"
+
+    if most_popular:
+        select_sql += " LEFT JOIN orders o ON e.id = o.event_id"
+
     where_sql = " WHERE e.status_id != %s AND"
+
+    if most_popular:
+        # only completed orders
+        where_sql += " o.status_id = 2 AND"
+
     if country:
         if any([status, category, type, title, owner_id]):
             where_sql += " e.country = %s AND"
@@ -183,9 +194,9 @@ def fetch_all_events_with_filters(body):
     if type:
         is_paid = type == PAID
         condition = (
-            " WHERE t.price IS NOT NULL AND t.price > 0"
+            " t.price IS NOT NULL AND t.price > 0"
             if is_paid
-            else " WHERE t.price <= 0 OR t.price IS NULL"
+            else " t.price <= 0 OR t.price IS NULL"
         )
 
         if any([title, owner_id]):
@@ -203,6 +214,13 @@ def fetch_all_events_with_filters(body):
         args_to_add.append(owner_id)
 
     constructed_sql = select_sql + where_sql
+
+    # Mutually exclusive
+    if most_popular:
+        constructed_sql += " GROUP BY e.id, e.owner_id, e.title, e.description, e.address, e.img_src, e.starts_at, e.ends_at, e.status_id, e.category_id, e.country, e.currency, e.created_at, t.price"
+        constructed_sql += " ORDER BY COUNT(o.id) DESC"
+    elif most_recents:
+        constructed_sql += " ORDER BY e.created_at DESC"
 
     print(f"Filter Query constructed: {constructed_sql}")
 

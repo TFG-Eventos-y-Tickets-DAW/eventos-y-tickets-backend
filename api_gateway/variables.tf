@@ -50,6 +50,10 @@ variable "capture_paypal_order_lambda_arn" {
   type = string
 }
 
+variable "abandon_order_lambda_arn" {
+  type = string
+}
+
 variable "my_events_lambda_arn" {
   type = string
 }

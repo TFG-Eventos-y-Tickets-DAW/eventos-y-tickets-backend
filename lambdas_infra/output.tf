@@ -50,6 +50,10 @@ output "capture_paypal_order_lambda_arn" {
   value = module.capture_paypal_order_lambda.lambda_function_arn
 }
 
+output "abandon_order_lambda_arn" {
+  value = module.abandon_order_lambda.lambda_function_arn
+}
+
 output "my_events_lambda_arn" {
   value = module.my_events_lambda.lambda_function_arn
 }

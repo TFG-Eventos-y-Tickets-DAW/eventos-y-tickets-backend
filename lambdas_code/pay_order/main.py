@@ -5,7 +5,7 @@ from common.constants.order_statuses import (
     ORDER_STATUS_ID_BY_NAME,
     PENDING_ID,
 )
-from common.constants.payment_methods import CREDIT, PAYPAL
+from common.constants.payment_methods import CREDIT, FREE, PAYPAL
 from common.error_types import INVALID_REQUEST, PAYMENT_FAILED
 from common.http_utils import http_error_response, generic_server_error
 from common.payment_method_validation import validate_payment_method
@@ -50,6 +50,32 @@ def lambda_handler(event, _):
         return http_error_response(
             status_code=400, error_type=INVALID_REQUEST, error_detail=err_msg
         )
+
+    if payment_method == FREE and float(order_session.get("totalAmount")) > 0:
+        return http_error_response(
+            status_code=400,
+            error_type=INVALID_REQUEST,
+            error_detail="You can't pay this order as a FREE order since its amount is greater than 0."
+        )
+
+    if float(order_session.get("totalAmount")) <= 0 and payment_method != FREE:
+        return http_error_response(
+            status_code=400,
+            error_type=INVALID_REQUEST,
+            error_detail="You can't pay this order using PayPal or Credit cards since it is a FREE order."
+        )
+
+    if payment_method == FREE:
+        database_order_id = create_order_in_database(order_session, COMPLETED_ID)
+        connection.commit()
+        delete_order_session(order_id, event_id)
+        return {
+            "status": PAYPAL_COMPLETED,
+            "orderId": database_order_id,
+            "quantity": int(order_session.get("quantity")),
+            "ticketId": int(order_session.get("ticketId")),
+            "total": float(order_session.get("totalAmount")),
+        }
 
     try:
         database_order_id = create_order_in_database(order_session)
@@ -106,11 +132,12 @@ def build_result_by_payment_method(payment_method, paypal_status, database_order
     }
     if payment_method == PAYPAL:
         result["redirectUrl"] = response_data.get("paypal_url_to_redirect", "")
+        result["paypalOrderId"] = response_data.get("paypal_order_id", "")
 
     return result
 
 
-def create_order_in_database(order_session):
+def create_order_in_database(order_session, status=PENDING_ID):
     order_id = 0
 
     with connection.cursor() as cur:
@@ -122,7 +149,7 @@ def create_order_in_database(order_session):
                 int(order_session.get("ticketId")),
                 int(order_session.get("payerId")),
                 int(order_session.get("payeeId")),
-                PENDING_ID,
+                status,
                 float(order_session.get("totalAmount")),
                 int(order_session.get("quantity")),
             ),

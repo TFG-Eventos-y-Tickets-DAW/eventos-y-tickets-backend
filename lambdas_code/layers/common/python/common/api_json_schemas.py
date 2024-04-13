@@ -151,6 +151,8 @@ PUBLIC_EVENTS_SCHEMA = {
                 "title": {"type": "string", "minLength": 4, "maxLength": 128},
                 "type": {"type": "string", "enum": ["PAID", "FREE"]},
                 "ownerId": {"type": "integer"},
+                "mostRecents": {"type": "boolean"},
+                "mostPopular": {"type": "boolean"},
             },
         },
         "itemsPerPage": {"type": "integer"},
@@ -184,7 +186,7 @@ PAY_ORDER_SCHEMA = {
         "eventId": {"type": "integer", "minimum": 1},
         "paymentMethod": {
             "type": "string",
-            "enum": ["CREDIT", "PAYPAL"],
+            "enum": ["CREDIT", "PAYPAL", "FREE"],
         },
         "paymentMethodDetails": {
             "type": "object",
@@ -210,4 +212,14 @@ CAPTURE_PAYPAL_ORDER_SCHEMA = {
         "paypalOrderId": {"type": "string", "minLength": 6},
     },
     "required": ["paypalOrderId"],
+}
+
+ABANDON_ORDER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "orderSessionId": {"type": "string", "minLength": 2},
+        "eventId": {"type": "integer", "minimum": 1},
+        "orderId": {"type": "integer", "minimum": 1},
+    },
+    "required": ["orderSessionId"],
 }
