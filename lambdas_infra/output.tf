@@ -62,6 +62,10 @@ output "refund_order_lambda_arn" {
   value = module.refund_order_lambda.lambda_function_arn
 }
 
+output "my_tickets_lambda_arn" {
+  value = module.my_tickets_lambda.lambda_function_arn
+}
+
 output "my_events_lambda_arn" {
   value = module.my_events_lambda.lambda_function_arn
 }

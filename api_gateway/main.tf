@@ -150,6 +150,15 @@ module "api_gateway" {
       authorization_type = "CUSTOM"
       authorizer_key     = "lambda-authorizer"
     }
+
+    "GET /api/v1/tickets" = {
+      lambda_arn             = var.my_tickets_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+
+      authorization_type = "CUSTOM"
+      authorizer_key     = "lambda-authorizer"
+    }
   }
 
   authorizers = {

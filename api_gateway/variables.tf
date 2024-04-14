@@ -62,6 +62,10 @@ variable "refund_order_lambda_arn" {
   type = string
 }
 
+variable "my_tickets_lambda_arn" {
+  type = string
+}
+
 variable "my_events_lambda_arn" {
   type = string
 }
