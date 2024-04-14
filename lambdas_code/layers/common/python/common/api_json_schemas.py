@@ -223,3 +223,20 @@ ABANDON_ORDER_SCHEMA = {
     },
     "required": ["orderSessionId"],
 }
+
+LIST_ORDERS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "filters": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": ["COMPLETED", "REFUNDED"],
+                }
+            },
+            "required": ["status"],
+        },
+    },
+    "required": ["filters"],
+}

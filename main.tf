@@ -15,6 +15,8 @@ module "api_gateway" {
   get_paypal_order_status_lambda_arn = module.lambdas.get_paypal_order_status_lambda_arn
   capture_paypal_order_lambda_arn    = module.lambdas.capture_paypal_order_lambda_arn
   abandon_order_lambda_arn           = module.lambdas.abandon_order_lambda_arn
+  list_orders_lambda_arn             = module.lambdas.list_orders_lambda_arn
+  refund_order_lambda_arn            = module.lambdas.refund_order_lambda_arn
   my_events_lambda_arn               = module.lambdas.my_events_lambda_arn
   public_events_lambda_arn           = module.lambdas.public_events_lambda_arn
   authorizer_lambda_invoke_arn       = module.lambdas.authorizer_lambda_invoke_arn

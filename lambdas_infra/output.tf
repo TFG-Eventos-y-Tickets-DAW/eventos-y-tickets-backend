@@ -54,6 +54,14 @@ output "abandon_order_lambda_arn" {
   value = module.abandon_order_lambda.lambda_function_arn
 }
 
+output "list_orders_lambda_arn" {
+  value = module.list_orders_lambda.lambda_function_arn
+}
+
+output "refund_order_lambda_arn" {
+  value = module.refund_order_lambda.lambda_function_arn
+}
+
 output "my_events_lambda_arn" {
   value = module.my_events_lambda.lambda_function_arn
 }

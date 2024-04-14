@@ -39,7 +39,7 @@ module "sign_in_lambda" {
   }
 
   timeout     = 12
-  memory_size = 256
+  memory_size = 512
 }
 
 module "sign_up_lambda" {
@@ -78,7 +78,7 @@ module "sign_up_lambda" {
   }
 
   timeout     = 12
-  memory_size = 256
+  memory_size = 512
 }
 
 module "about_me_lambda" {
@@ -622,6 +622,84 @@ module "abandon_order_lambda" {
     DB_PORT                   = var.db_port
     DB_USERNAME               = "${var.db_username}-lambda"
     ORDER_SESSIONS_TABLE_NAME = var.order_sessions_dynamodb_table_name
+  }
+
+  timeout     = 12
+  memory_size = 256
+}
+
+module "list_orders_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.2.3"
+
+  function_name = "list-orders-lambda"
+  description   = "List Orders from Event"
+  handler       = "main.lambda_handler"
+  runtime       = "python3.12"
+
+  source_path = "lambdas_code/list_orders"
+
+  publish = true
+
+  allowed_triggers = {
+    APIGateway = {
+      service    = "apigateway"
+      source_arn = "${var.api_gateway_execution_arn}/*/*/*"
+    }
+  }
+
+  vpc_subnet_ids         = var.vpc_private_subnets_ids
+  vpc_security_group_ids = [var.lambda_sg_id]
+  attach_network_policy  = true
+
+  layers = [
+    module.lambda_req_mysql_jwt_layer.lambda_layer_arn,
+    module.lambda_common_code.lambda_layer_arn
+  ]
+
+  environment_variables = {
+    DB_HOST     = split(":", var.db_host)[0]
+    DB_PORT     = var.db_port
+    DB_USERNAME = "${var.db_username}-lambda"
+  }
+
+  timeout     = 12
+  memory_size = 256
+}
+
+module "refund_order_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.2.3"
+
+  function_name = "refund-order-lambda"
+  description   = "Refund Order"
+  handler       = "main.lambda_handler"
+  runtime       = "python3.12"
+
+  source_path = "lambdas_code/refund_order"
+
+  publish = true
+
+  allowed_triggers = {
+    APIGateway = {
+      service    = "apigateway"
+      source_arn = "${var.api_gateway_execution_arn}/*/*/*"
+    }
+  }
+
+  vpc_subnet_ids         = var.vpc_private_subnets_ids
+  vpc_security_group_ids = [var.lambda_sg_id]
+  attach_network_policy  = true
+
+  layers = [
+    module.lambda_req_mysql_jwt_layer.lambda_layer_arn,
+    module.lambda_common_code.lambda_layer_arn
+  ]
+
+  environment_variables = {
+    DB_HOST     = split(":", var.db_host)[0]
+    DB_PORT     = var.db_port
+    DB_USERNAME = "${var.db_username}-lambda"
   }
 
   timeout     = 12

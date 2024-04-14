@@ -132,6 +132,24 @@ module "api_gateway" {
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
     }
+
+    "POST /api/v1/orders/list/{eventId}" = {
+      lambda_arn             = var.list_orders_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+
+      authorization_type = "CUSTOM"
+      authorizer_key     = "lambda-authorizer"
+    }
+
+    "POST /api/v1/order/{id}/refund" = {
+      lambda_arn             = var.refund_order_lambda_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+
+      authorization_type = "CUSTOM"
+      authorizer_key     = "lambda-authorizer"
+    }
   }
 
   authorizers = {

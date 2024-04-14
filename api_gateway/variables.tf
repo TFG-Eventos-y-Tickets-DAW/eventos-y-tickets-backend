@@ -54,6 +54,14 @@ variable "abandon_order_lambda_arn" {
   type = string
 }
 
+variable "list_orders_lambda_arn" {
+  type = string
+}
+
+variable "refund_order_lambda_arn" {
+  type = string
+}
+
 variable "my_events_lambda_arn" {
   type = string
 }

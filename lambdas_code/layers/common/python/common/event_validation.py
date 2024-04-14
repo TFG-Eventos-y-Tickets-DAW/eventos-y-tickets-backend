@@ -1,5 +1,5 @@
 from common.constants.event_statuses import PUBLISHED
-from common.constants.order_statuses import COMPLETED_ID
+from common.constants.order_statuses import COMPLETED_ID, REFUNDED_ID
 from datetime import datetime, timezone
 
 from boto3.dynamodb.conditions import Key
@@ -174,13 +174,9 @@ def retrieve_tickets_details_by_event_id(event_id, connection, order_sessions_ta
         cur.execute(select_sql, (event_id,))
         ticket_details = cur.fetchone()
 
-        select_sql = "SELECT COUNT(*) as orders_sold FROM `orders` WHERE `event_id`=%s AND `status_id` = %s"
+        select_sql = "SELECT COUNT(*) as orders_sold FROM `orders` WHERE `event_id`= %s AND `status_id` = %s"
         cur.execute(select_sql, (event_id, COMPLETED_ID))
         order_details = cur.fetchone()
-
-        select_sql = "SELECT COUNT(*) as orders_refunded FROM `order_reversals` WHERE `event_id`=%s"
-        cur.execute(select_sql, (event_id,))
-        order_refund_details = cur.fetchone()
 
         # We also take into consideration active Order Sessions for the event
         response = order_sessions_table.query(
@@ -193,7 +189,6 @@ def retrieve_tickets_details_by_event_id(event_id, connection, order_sessions_ta
             ticket_details["quantity"]
             - active_order_sessions_count
             - order_details["orders_sold"]
-            + order_refund_details["orders_refunded"]
         )
 
     return ticket_details
