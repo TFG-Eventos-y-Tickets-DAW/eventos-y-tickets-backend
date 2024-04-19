@@ -13,3 +13,15 @@ output "order_sessions_dynamodb_table_arn" {
 output "order_sessions_dynamodb_table_name" {
   value = aws_dynamodb_table.order_sessions_dynamodb_table.name
 }
+
+output "event_lifecycle_dynamodb_table_arn" {
+  value = aws_dynamodb_table.event_lifecycle_dynamodb_table.arn
+}
+
+output "event_lifecycle_dynamodb_table_name" {
+  value = aws_dynamodb_table.event_lifecycle_dynamodb_table.name
+}
+
+output "event_lifecycle_dynamodb_stream_arn" {
+  value = aws_dynamodb_table.event_lifecycle_dynamodb_table.stream_arn
+}

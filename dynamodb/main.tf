@@ -52,3 +52,25 @@ resource "aws_dynamodb_table" "order_sessions_dynamodb_table" {
     non_key_attributes = ["ttl"]
   }
 }
+
+# Event Lifecycle Table
+resource "aws_dynamodb_table" "event_lifecycle_dynamodb_table" {
+  name           = "EventLifecycle"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 5
+  write_capacity = 5
+  hash_key       = "eventId"
+
+  attribute {
+    name = "eventId"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "ttl"
+    enabled        = true
+  }
+
+  stream_enabled   = true
+  stream_view_type = "KEYS_ONLY"
+}

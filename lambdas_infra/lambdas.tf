@@ -39,7 +39,7 @@ module "sign_in_lambda" {
   }
 
   timeout     = 12
-  memory_size = 512
+  memory_size = 1024
 }
 
 module "sign_up_lambda" {
@@ -78,7 +78,7 @@ module "sign_up_lambda" {
   }
 
   timeout     = 12
-  memory_size = 512
+  memory_size = 1024
 }
 
 module "about_me_lambda" {
@@ -184,9 +184,10 @@ module "create_event_lambda" {
   ]
 
   environment_variables = {
-    DB_HOST     = split(":", var.db_host)[0]
-    DB_PORT     = var.db_port
-    DB_USERNAME = "${var.db_username}-lambda"
+    DB_HOST                    = split(":", var.db_host)[0]
+    DB_PORT                    = var.db_port
+    DB_USERNAME                = "${var.db_username}-lambda"
+    EVENT_LIFECYCLE_TABLE_NAME = var.event_lifecycle_dynamodb_table_name
   }
 
   timeout     = 12
@@ -223,9 +224,10 @@ module "update_event_lambda" {
   ]
 
   environment_variables = {
-    DB_HOST     = split(":", var.db_host)[0]
-    DB_PORT     = var.db_port
-    DB_USERNAME = "${var.db_username}-lambda"
+    DB_HOST                    = split(":", var.db_host)[0]
+    DB_PORT                    = var.db_port
+    DB_USERNAME                = "${var.db_username}-lambda"
+    EVENT_LIFECYCLE_TABLE_NAME = var.event_lifecycle_dynamodb_table_name
   }
 
   timeout     = 12
@@ -380,9 +382,10 @@ module "delete_event_lambda" {
   ]
 
   environment_variables = {
-    DB_HOST     = split(":", var.db_host)[0]
-    DB_PORT     = var.db_port
-    DB_USERNAME = "${var.db_username}-lambda"
+    DB_HOST                    = split(":", var.db_host)[0]
+    DB_PORT                    = var.db_port
+    DB_USERNAME                = "${var.db_username}-lambda"
+    EVENT_LIFECYCLE_TABLE_NAME = var.event_lifecycle_dynamodb_table_name
   }
 
   timeout     = 12
@@ -725,6 +728,38 @@ module "my_tickets_lambda" {
       source_arn = "${var.api_gateway_execution_arn}/*/*/*"
     }
   }
+
+  vpc_subnet_ids         = var.vpc_private_subnets_ids
+  vpc_security_group_ids = [var.lambda_sg_id]
+  attach_network_policy  = true
+
+  layers = [
+    module.lambda_req_mysql_jwt_layer.lambda_layer_arn,
+    module.lambda_common_code.lambda_layer_arn
+  ]
+
+  environment_variables = {
+    DB_HOST     = split(":", var.db_host)[0]
+    DB_PORT     = var.db_port
+    DB_USERNAME = "${var.db_username}-lambda"
+  }
+
+  timeout     = 12
+  memory_size = 256
+}
+
+module "finalize_event_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.2.3"
+
+  function_name = "finalize-event-lambda"
+  description   = "Finalize Event"
+  handler       = "main.lambda_handler"
+  runtime       = "python3.12"
+
+  source_path = "lambdas_code/finalize_event"
+
+  publish = true
 
   vpc_subnet_ids         = var.vpc_private_subnets_ids
   vpc_security_group_ids = [var.lambda_sg_id]

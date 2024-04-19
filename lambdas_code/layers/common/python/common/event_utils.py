@@ -61,3 +61,20 @@ def get_ttl_for_the_next_minutes(minutes: int):
     future_time = utc_now + timedelta(minutes=minutes)
     epoch_future_time = int(future_time.timestamp())
     return epoch_future_time
+
+
+def assign_event_lifcycle_ends_at_ttl(event_lifecycle_table, event_id, ends_at):
+    """
+    Creates or updates the DynamoDB event lifecycle table
+    with the ends at date from the event created/updated
+    """
+    ends_at_datetime = datetime.strptime(ends_at, "%Y-%m-%d %H:%M:%S") - timedelta(
+        hours=2
+    )  # not ideal but for now its ok, it would be better if we infer the user local zone
+    epoch_time = int(ends_at_datetime.timestamp())
+
+    event_lifecycle_table.put_item(Item={"eventId": str(event_id), "ttl": epoch_time})
+
+
+def delete_event_lifecycle_ttl(event_lifecycle_table, event_id):
+    event_lifecycle_table.delete_item(Key={"eventId": str(event_id)})

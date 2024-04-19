@@ -7,7 +7,7 @@ from common.constants.event_statuses import (
 )
 from common.constants.ticket_types import FREE_TICKET, PAID_TICKET
 from common.error_types import INVALID_REQUEST
-from common.event_utils import get_user_id_from_jwt
+from common.event_utils import assign_event_lifcycle_ends_at_ttl, get_user_id_from_jwt
 from common.event_validation import (
     are_tickets_properly_configured,
     has_all_necessary_publish_event_data,
@@ -24,9 +24,15 @@ from common.schema import is_valid_schema_request
 from common.api_json_schemas import UPDATE_EVENT_SCHEMA
 
 import json
+import boto3
+import os
 
 connection = create_rds_connection()
 jwt_secret = get_jwt_secret()
+dynamodb_resource = boto3.resource("dynamodb")
+event_lifecycle_table = dynamodb_resource.Table(
+    os.environ.get("EVENT_LIFECYCLE_TABLE_NAME", "")
+)
 
 
 @is_valid_schema_request(UPDATE_EVENT_SCHEMA)
@@ -137,6 +143,13 @@ def lambda_handler(event, _):
     # Save changes to DB
     print("SAVING CHANGES TO DB...")
     connection.commit()
+
+    # Assign event lifecycle item if event was published at the end
+    # If we reach here, it means event was correctly created with the necessary information
+    if desired_event_status == PUBLISHED:
+        assign_event_lifcycle_ends_at_ttl(
+            event_lifecycle_table, event_details["id"], body.get("endsAt")
+        )
 
     return {"eventId": event_details["id"], "message": "Event successfully updated!"}
 

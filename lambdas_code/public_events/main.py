@@ -140,7 +140,8 @@ def fetch_all_events():
             FROM events AS e \
             LEFT JOIN tickets AS t \
             ON e.id = t.event_id \
-            WHERE e.status_id != %s"
+            WHERE e.status_id != %s \
+            AND e.ends_at > DATE_ADD(now(),interval 2 hour)"
         cur.execute(select_sql, (DELETED_ID,))
 
         result = cur.fetchall()
@@ -213,7 +214,9 @@ def fetch_all_events_with_filters(body):
         where_sql += " e.owner_id = %s"
         args_to_add.append(owner_id)
 
-    constructed_sql = select_sql + where_sql
+    constructed_sql = (
+        select_sql + where_sql + " AND e.ends_at > DATE_ADD(now(),interval 2 hour)"
+    )
 
     # Mutually exclusive
     if most_popular:

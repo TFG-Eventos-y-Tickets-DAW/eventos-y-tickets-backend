@@ -9,6 +9,7 @@ from common.api_json_schemas import SIGN_IN_SCHEMA
 
 connection = create_rds_connection()
 jwt_secret = get_jwt_secret()
+connection.autocommit(True)
 
 
 @is_valid_schema_request(SIGN_IN_SCHEMA)

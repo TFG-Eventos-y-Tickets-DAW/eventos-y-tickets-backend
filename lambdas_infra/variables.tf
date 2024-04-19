@@ -53,3 +53,15 @@ variable "order_sessions_dynamodb_table_arn" {
 variable "order_sessions_dynamodb_table_name" {
   type = string
 }
+
+variable "event_lifecycle_dynamodb_table_arn" {
+  type = string
+}
+
+variable "event_lifecycle_dynamodb_table_name" {
+  type = string
+}
+
+variable "event_lifecycle_dynamodb_stream_arn" {
+  type = string
+}

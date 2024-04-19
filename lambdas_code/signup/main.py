@@ -7,6 +7,7 @@ from common.schema import is_valid_schema_request
 from common.api_json_schemas import SIGN_UP_SCHEMA
 
 connection = create_rds_connection()
+connection.autocommit(True)
 
 
 @is_valid_schema_request(SIGN_UP_SCHEMA)
@@ -36,8 +37,6 @@ def create_new_user_in_db(body):
     with connection.cursor() as cur:
         sql = "INSERT INTO `users` (`first_name`, `last_name`, `email`, `password`, `is_anonymous`) VALUES (%s, %s, %s, %s, %s)"
         cur.execute(sql, (first_name, last_name, email, password, is_anonymous))
-
-        connection.commit()
 
         select_sql = "SELECT `id`, `first_name`, `last_name`, `email`, `is_anonymous` FROM `users` WHERE `email`=%s AND `is_anonymous`=%s"
         cur.execute(select_sql, (email, is_anonymous))

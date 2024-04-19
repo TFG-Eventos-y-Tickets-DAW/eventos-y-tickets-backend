@@ -41,6 +41,9 @@ module "lambdas" {
   event_pagination_dynamodb_table_name = module.dynamodb.event_pagination_dynamodb_table_name
   order_sessions_dynamodb_table_arn    = module.dynamodb.order_sessions_dynamodb_table_arn
   order_sessions_dynamodb_table_name   = module.dynamodb.order_sessions_dynamodb_table_name
+  event_lifecycle_dynamodb_table_arn   = module.dynamodb.event_lifecycle_dynamodb_table_arn
+  event_lifecycle_dynamodb_table_name  = module.dynamodb.event_lifecycle_dynamodb_table_name
+  event_lifecycle_dynamodb_stream_arn  = module.dynamodb.event_lifecycle_dynamodb_stream_arn
 }
 
 module "vpc" {

@@ -93,6 +93,11 @@ resource "aws_iam_role_policy_attachment" "allow_rds_attachment_my_tickets_lambd
   policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_finalize_event_lambda" {
+  role       = module.finalize_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
 data "aws_ssm_parameter" "jwt_secret_sign_parameter" {
   name = "/jwt/creds/secret"
 }
@@ -308,4 +313,67 @@ resource "aws_iam_role_policy_attachment" "allow_paypal_secrets_parameter_attach
 resource "aws_iam_role_policy_attachment" "allow_paypal_secrets_parameter_attachment_refund_order_lambda" {
   role       = module.refund_order_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_paypal_secrets_parameter_store_policy.arn
+}
+
+# Event lifecycle DynamoDB permissions 
+data "aws_iam_policy_document" "allow_event_lifecycle_dynamodb_access_json_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:Query",
+    ]
+    resources = [
+      var.event_lifecycle_dynamodb_table_arn,
+      "${var.event_lifecycle_dynamodb_table_arn}/index/*" # Including indexes
+    ]
+  }
+}
+
+resource "aws_iam_policy" "allow_event_lifecycle_dynamodb_access_policy" {
+  name        = "allow-event-lifecycle-dynamodb-table"
+  description = "Allow access to Event Lifeycle DynamoDB Table"
+  policy      = data.aws_iam_policy_document.allow_event_lifecycle_dynamodb_access_json_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "allow_event_lifecycle_dynamodb_access_policy_attachment_create_event_lambda" {
+  role       = module.create_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_event_lifecycle_dynamodb_access_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_event_lifecycle_dynamodb_access_policy_attachment_update_event_lambda" {
+  role       = module.update_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_event_lifecycle_dynamodb_access_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_event_lifecycle_dynamodb_access_policy_attachment_delete_event_lambda" {
+  role       = module.delete_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_event_lifecycle_dynamodb_access_policy.arn
+}
+
+data "aws_iam_policy_document" "event_lifecycle_dynamodb_streams_policy_document" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:DescribeStream",
+      "dynamodb:ListStreams"
+    ]
+
+    resources = ["${var.event_lifecycle_dynamodb_table_arn}/stream/*"]
+  }
+}
+
+resource "aws_iam_policy" "allow_event_lifecycle_dynamodb_stream_access_policy" {
+  name        = "allow-event-lifecycle-dynamodb-table-stream"
+  description = "Allow access to Event Lifeycle DynamoDB Stream"
+  policy      = data.aws_iam_policy_document.event_lifecycle_dynamodb_streams_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "allow_event_lifecycle_stream_access_policy_attachment_finalize_event_lambda" {
+  role       = module.finalize_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_event_lifecycle_dynamodb_stream_access_policy.arn
 }

@@ -1,6 +1,6 @@
 from common.constants.event_statuses import DELETED_ID
 from common.error_types import INVALID_REQUEST
-from common.event_utils import get_user_id_from_jwt
+from common.event_utils import delete_event_lifecycle_ttl, get_user_id_from_jwt
 from common.event_validation import (
     is_valid_event_from_path,
 )
@@ -8,8 +8,15 @@ from common.http_utils import generic_server_error, http_error_response
 from common.jwt_utils import get_jwt_secret
 from common.rds_conn import create_rds_connection
 
+import boto3
+import os
+
 connection = create_rds_connection()
 jwt_secret = get_jwt_secret()
+dynamodb_resource = boto3.resource("dynamodb")
+event_lifecycle_table = dynamodb_resource.Table(
+    os.environ.get("EVENT_LIFECYCLE_TABLE_NAME", "")
+)
 
 
 def lambda_handler(event, _):
@@ -51,6 +58,12 @@ def lambda_handler(event, _):
         return generic_server_error()
 
     connection.commit()
+
+    # Clean up lifecycle ends at ttl
+    try:
+        delete_event_lifecycle_ttl(event_lifecycle_table, event_id)
+    except Exception as exc:
+        print(f"Error while cleaning event lifecycle for {event_id} - {exc}")
 
     return {"eventId": event_id, "message": "Event deleted successfully!"}
 
