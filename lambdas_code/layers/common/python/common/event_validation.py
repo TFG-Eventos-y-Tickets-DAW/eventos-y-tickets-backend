@@ -174,7 +174,7 @@ def retrieve_tickets_details_by_event_id(event_id, connection, order_sessions_ta
         cur.execute(select_sql, (event_id,))
         ticket_details = cur.fetchone()
 
-        select_sql = "SELECT COUNT(*) as orders_sold FROM `orders` WHERE `event_id`= %s AND `status_id` = %s"
+        select_sql = "SELECT SUM(quantity) as orders_sold FROM `orders` WHERE `event_id`= %s AND `status_id` = %s"
         cur.execute(select_sql, (event_id, COMPLETED_ID))
         order_details = cur.fetchone()
 
