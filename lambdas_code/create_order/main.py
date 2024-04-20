@@ -103,7 +103,7 @@ def calculate_order_amount(body):
     if result is None:
         return total, "It seems the ticket don't match with the event provided."
 
-    total = result["price"] * body.get("quantity")
+    total = round(result["price"] * body.get("quantity"), 2)
 
     return total, None
 
