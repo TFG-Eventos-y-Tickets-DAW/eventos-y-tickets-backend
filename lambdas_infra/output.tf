@@ -77,3 +77,7 @@ output "public_events_lambda_arn" {
 output "authorizer_lambda_invoke_arn" {
   value = module.authorizer_lambda.lambda_function_invoke_arn
 }
+
+output "prepare_payouts_lambda_arn" {
+  value = module.prepare_payouts_lambda.lambda_function_arn
+}

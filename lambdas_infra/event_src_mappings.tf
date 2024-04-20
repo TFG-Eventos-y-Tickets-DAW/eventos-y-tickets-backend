@@ -21,3 +21,14 @@ resource "aws_lambda_event_source_mapping" "finalize_event_mapping_event_lifecyc
     }
   }
 }
+
+resource "aws_lambda_event_source_mapping" "send_payouts_event_mapping_sqs_queue" {
+  event_source_arn = var.send_payouts_fifo_queue_arn
+  function_name    = module.send_payouts_lambda.lambda_function_name
+
+  enabled    = true
+  batch_size = 10
+
+  maximum_batching_window_in_seconds = 0
+  function_response_types            = ["ReportBatchItemFailures"]
+}

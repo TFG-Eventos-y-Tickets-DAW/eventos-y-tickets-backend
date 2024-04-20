@@ -98,6 +98,16 @@ resource "aws_iam_role_policy_attachment" "allow_rds_attachment_finalize_event_l
   policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_prepare_payouts_lambda" {
+  role       = module.prepare_payouts_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_send_payouts_lambda" {
+  role       = module.send_payouts_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
 data "aws_ssm_parameter" "jwt_secret_sign_parameter" {
   name = "/jwt/creds/secret"
 }
@@ -376,4 +386,44 @@ resource "aws_iam_policy" "allow_event_lifecycle_dynamodb_stream_access_policy" 
 resource "aws_iam_role_policy_attachment" "allow_event_lifecycle_stream_access_policy_attachment_finalize_event_lambda" {
   role       = module.finalize_event_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_event_lifecycle_dynamodb_stream_access_policy.arn
+}
+
+
+# SQS Payouts permissions
+
+data "aws_iam_policy_document" "allow_send_payouts_fifo_queue_policy_document" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:SendMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:GetQueueUrl",
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+    ]
+
+    resources = [var.send_payouts_fifo_queue_arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:Decrypt"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "allow_send_payouts_fifo_queue_policy" {
+  name        = "allow_send_payouts_fifo_queue_policy"
+  description = "Allow access to send messages to payouts SQS"
+  policy      = data.aws_iam_policy_document.allow_send_payouts_fifo_queue_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "allow_send_payouts_fifo_queue_policy_attachment_prepare_payouts_lambda" {
+  role       = module.prepare_payouts_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_send_payouts_fifo_queue_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_send_payouts_fifo_queue_policy_attachment_send_payouts_lambda" {
+  role       = module.send_payouts_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_send_payouts_fifo_queue_policy.arn
 }

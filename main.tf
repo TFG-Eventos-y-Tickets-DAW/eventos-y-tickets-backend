@@ -44,6 +44,9 @@ module "lambdas" {
   event_lifecycle_dynamodb_table_arn   = module.dynamodb.event_lifecycle_dynamodb_table_arn
   event_lifecycle_dynamodb_table_name  = module.dynamodb.event_lifecycle_dynamodb_table_name
   event_lifecycle_dynamodb_stream_arn  = module.dynamodb.event_lifecycle_dynamodb_stream_arn
+
+  send_payouts_fifo_queue_arn  = module.sqs.send_payouts_fifo_queue_arn
+  send_payouts_fifo_queue_name = module.sqs.send_payouts_fifo_queue_name
 }
 
 module "vpc" {
@@ -95,4 +98,8 @@ module "route53" {
 
   react_web_cf_domain         = module.cloudfront.react_web_cf_domain
   react_web_cf_hosted_zone_id = module.cloudfront.react_web_cf_hosted_zone_id
+}
+
+module "sqs" {
+  source = "./sqs"
 }

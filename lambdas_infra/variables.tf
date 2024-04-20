@@ -65,3 +65,11 @@ variable "event_lifecycle_dynamodb_table_name" {
 variable "event_lifecycle_dynamodb_stream_arn" {
   type = string
 }
+
+variable "send_payouts_fifo_queue_arn" {
+  type = string
+}
+
+variable "send_payouts_fifo_queue_name" {
+  type = string
+}
