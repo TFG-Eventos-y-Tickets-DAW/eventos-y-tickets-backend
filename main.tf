@@ -84,3 +84,15 @@ module "oidc_github" {
   iam_role_name        = "github_oidc"
   iam_role_policy_arns = [module.s3.allow_full_access_to_react_bucket_policy_arn]
 }
+
+module "cloudfront" {
+  source                   = "./cloudfront"
+  react_app_s3_domain_name = module.s3.react_app_s3_domain_name
+}
+
+module "route53" {
+  source = "./route53"
+
+  react_web_cf_domain         = module.cloudfront.react_web_cf_domain
+  react_web_cf_hosted_zone_id = module.cloudfront.react_web_cf_hosted_zone_id
+}

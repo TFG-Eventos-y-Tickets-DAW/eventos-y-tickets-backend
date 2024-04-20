@@ -28,7 +28,28 @@ resource "aws_s3_bucket_public_access_block" "react_bucket_public_access" {
 
 resource "aws_s3_bucket_policy" "allow_access_from_everyone_policy_react_app" {
   bucket = aws_s3_bucket.react_app_bucket.id
-  policy = data.aws_iam_policy_document.allow_access_from_everyone_react_app.json
+  policy = jsonencode(
+    {
+      "Version" : "2008-10-17",
+      "Id" : "PolicyForCloudFrontPrivateContent",
+      "Statement" : [
+        {
+          "Sid" : "AllowCloudFrontServicePrincipal",
+          "Effect" : "Allow",
+          "Principal" : {
+            "Service" : "cloudfront.amazonaws.com"
+          },
+          "Action" : "s3:GetObject",
+          "Resource" : "arn:aws:s3:::event-n-greet-react-web/*",
+          "Condition" : {
+            "StringEquals" : {
+              "AWS:SourceArn" : "arn:aws:cloudfront::058264200211:distribution/E1DEIFIEABRIU6"
+            }
+          }
+        }
+      ]
+    }
+  )
 }
 
 resource "aws_s3_bucket_website_configuration" "react_app_website_hosting_conf" {
@@ -43,24 +64,6 @@ resource "aws_s3_bucket_website_configuration" "react_app_website_hosting_conf" 
   }
 }
 
-data "aws_iam_policy_document" "allow_access_from_everyone_react_app" {
-  statement {
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-
-    actions = [
-      "s3:GetObject"
-    ]
-
-    resources = [
-      aws_s3_bucket.react_app_bucket.arn,
-      "${aws_s3_bucket.react_app_bucket.arn}/*",
-    ]
-  }
-}
-
 data "aws_iam_policy_document" "allow_full_access_to_react_bucket_json" {
   statement {
     actions = [
@@ -71,6 +74,14 @@ data "aws_iam_policy_document" "allow_full_access_to_react_bucket_json" {
       aws_s3_bucket.react_app_bucket.arn,
       "${aws_s3_bucket.react_app_bucket.arn}/*",
     ]
+  }
+
+  statement {
+    actions = [
+      "cloudfront:CreateInvalidation"
+    ]
+
+    resources = ["*"]
   }
 }
 
