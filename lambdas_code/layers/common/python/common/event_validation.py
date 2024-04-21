@@ -183,12 +183,12 @@ def retrieve_tickets_details_by_event_id(event_id, connection, order_sessions_ta
             IndexName="EventIdIndex",
             KeyConditionExpression=Key("eventId").eq(str(event_id)),
         )
-        active_order_sessions_count = response.get("Count", 0)
+        active_order_sessions_count = response.get("Count", 0) or 0
 
         ticket_details["quantityAvailable"] = (
             ticket_details["quantity"]
             - active_order_sessions_count
-            - order_details["orders_sold"]
+            - (order_details.get("orders_sold", 0) or 0)
         )
 
     return ticket_details
