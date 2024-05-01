@@ -1,4 +1,4 @@
 data "aws_acm_certificate" "eventngreet_cert" {
-  domain   = "eventngreet.com"
+  domain   = "www.eventngreet.com"
   statuses = ["ISSUED"]
 }

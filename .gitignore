@@ -38,3 +38,6 @@ backend.tf
 .terraform
 venv/
 sandbox.py
+
+tests/**/__pycache__/
+lambdas_code/**/__pycache__/

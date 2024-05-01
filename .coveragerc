@@ -1,0 +1,7 @@
+[run]
+omit =
+    ./tests/*
+    ./lambdas_code/layers/shared/*
+
+include =
+    ./lambdas_code/*
