@@ -11,11 +11,17 @@ from common.jwt_utils import get_jwt_secret
 from common.rds_conn import create_rds_connection
 import json
 import humps
+import boto3
+import os
 
 from common.schema import is_valid_schema_request
 
 connection = create_rds_connection()
 jwt_secret = get_jwt_secret()
+dynamodb_resource = boto3.resource("dynamodb")
+event_views_table = dynamodb_resource.Table(
+    os.environ.get("EVENT_VIEWS_TABLE_NAME", "")
+)
 
 
 @is_valid_schema_request(LIST_ORDERS_SCHEMA)
@@ -56,7 +62,10 @@ def lambda_handler(event, _):
         )
     )
 
-    return {"orders": orders_list}
+    return {
+        "orders": orders_list,
+        "eventViewsCount": retrieve_event_views(str(event_details["id"])),
+    }
 
 
 def retrieve_orders_by_event_and_status(event_id, status):
@@ -100,3 +109,11 @@ def replace_payment_method_id(order: dict):
             PAYMENT_METHOD_NAME_BY_ID.get(order["payment_method_id"]) or FREE
         )
         del order["payment_method_id"]
+
+
+def retrieve_event_views(event_id):
+    event_views_metadata = event_views_table.get_item(Key={"eventId": event_id})
+    if "Item" not in event_views_metadata:
+        return 0
+
+    return event_views_metadata.get("Item", {}).get("viewCount", 0) or 0

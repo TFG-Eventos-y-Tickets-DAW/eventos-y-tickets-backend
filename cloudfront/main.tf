@@ -56,5 +56,6 @@ resource "aws_cloudfront_distribution" "react_web_s3_bucket" {
 
   aliases = [
     "eventngreet.com",
+    "www.eventngreet.com",
   ]
 }

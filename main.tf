@@ -44,6 +44,8 @@ module "lambdas" {
   event_lifecycle_dynamodb_table_arn   = module.dynamodb.event_lifecycle_dynamodb_table_arn
   event_lifecycle_dynamodb_table_name  = module.dynamodb.event_lifecycle_dynamodb_table_name
   event_lifecycle_dynamodb_stream_arn  = module.dynamodb.event_lifecycle_dynamodb_stream_arn
+  event_views_dynamodb_arn             = module.dynamodb.event_views_dynamodb_table_arn
+  event_views_dynamodb_table_name      = module.dynamodb.event_views_dynamodb_table_name
 
   send_payouts_fifo_queue_arn  = module.sqs.send_payouts_fifo_queue_arn
   send_payouts_fifo_queue_name = module.sqs.send_payouts_fifo_queue_name

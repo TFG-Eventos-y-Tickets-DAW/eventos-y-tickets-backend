@@ -74,3 +74,18 @@ resource "aws_dynamodb_table" "event_lifecycle_dynamodb_table" {
   stream_enabled   = true
   stream_view_type = "KEYS_ONLY"
 }
+
+
+# Event Views Table
+resource "aws_dynamodb_table" "event_views_dynamodb_table" {
+  name           = "EventViews"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 5
+  write_capacity = 5
+  hash_key       = "eventId"
+
+  attribute {
+    name = "eventId"
+    type = "S"
+  }
+}

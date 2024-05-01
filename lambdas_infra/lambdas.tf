@@ -426,6 +426,7 @@ module "get_public_event_lambda" {
     DB_PORT                   = var.db_port
     DB_USERNAME               = "${var.db_username}-lambda"
     ORDER_SESSIONS_TABLE_NAME = var.order_sessions_dynamodb_table_name
+    EVENT_VIEWS_TABLE_NAME    = var.event_views_dynamodb_table_name
   }
 
   timeout     = 12
@@ -661,9 +662,10 @@ module "list_orders_lambda" {
   ]
 
   environment_variables = {
-    DB_HOST     = split(":", var.db_host)[0]
-    DB_PORT     = var.db_port
-    DB_USERNAME = "${var.db_username}-lambda"
+    DB_HOST                = split(":", var.db_host)[0]
+    DB_PORT                = var.db_port
+    DB_USERNAME            = "${var.db_username}-lambda"
+    EVENT_VIEWS_TABLE_NAME = var.event_views_dynamodb_table_name
   }
 
   timeout     = 12

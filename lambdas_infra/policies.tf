@@ -427,3 +427,36 @@ resource "aws_iam_role_policy_attachment" "allow_send_payouts_fifo_queue_policy_
   role       = module.send_payouts_lambda.lambda_role_name
   policy_arn = aws_iam_policy.allow_send_payouts_fifo_queue_policy.arn
 }
+
+data "aws_iam_policy_document" "allow_event_views_dynamodb_access_json_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:Query",
+    ]
+    resources = [
+      var.event_views_dynamodb_arn,
+      "${var.event_views_dynamodb_arn}/index/*" # Including indexes
+    ]
+  }
+}
+
+resource "aws_iam_policy" "allow_event_views_dynamodb_access_policy" {
+  name        = "allow-event-views-dynamodb-table"
+  description = "Allow access to Event Views DynamoDB Table"
+  policy      = data.aws_iam_policy_document.allow_event_views_dynamodb_access_json_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "allow_event_views_dynamodb_access_policy_attachment_public_event_lambda" {
+  role       = module.get_public_event_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_event_views_dynamodb_access_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "allow_event_views_dynamodb_access_policy_attachment_list_orders_lambda" {
+  role       = module.list_orders_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_event_views_dynamodb_access_policy.arn
+}

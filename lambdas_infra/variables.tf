@@ -66,6 +66,14 @@ variable "event_lifecycle_dynamodb_stream_arn" {
   type = string
 }
 
+variable "event_views_dynamodb_table_name" {
+  type = string
+}
+
+variable "event_views_dynamodb_arn" {
+  type = string
+}
+
 variable "send_payouts_fifo_queue_arn" {
   type = string
 }

@@ -9,7 +9,6 @@ from common.event_validation import (
 )
 from common.http_utils import http_error_response, generic_server_error
 from common.rds_conn import create_rds_connection
-from boto3.dynamodb.conditions import Key
 import humps
 import boto3
 import os
@@ -20,6 +19,9 @@ connection.autocommit(True)
 dynamodb_resource = boto3.resource("dynamodb")
 order_sessions_table = dynamodb_resource.Table(
     os.environ.get("ORDER_SESSIONS_TABLE_NAME", "")
+)
+event_views_table = dynamodb_resource.Table(
+    os.environ.get("EVENT_VIEWS_TABLE_NAME", "")
 )
 
 
@@ -55,4 +57,27 @@ def lambda_handler(event, _):
 
     event_details["tickets"] = tickets_details
 
+    # Event views counter
+    update_event_views_counter(str(event_details["id"]))
+
     return humps.camelize(event_details)
+
+
+def update_event_views_counter(event_id):
+    event_views_metadata = event_views_table.get_item(Key={"eventId": event_id})
+    if "Item" not in event_views_metadata:
+        event_views_table.put_item(
+            Item={
+                "eventId": event_id,
+                "viewCount": 1,
+            }
+        )
+    else:
+        event_views_table.update_item(
+            Key={
+                "eventId": event_id,
+            },
+            UpdateExpression="SET viewCount = viewCount + :val",
+            ExpressionAttributeValues={":val": 1},
+            ReturnValues="UPDATED_NEW",
+        )
