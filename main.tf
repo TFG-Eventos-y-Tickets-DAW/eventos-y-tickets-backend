@@ -91,8 +91,10 @@ module "oidc_github" {
 }
 
 module "cloudfront" {
-  source                   = "./cloudfront"
-  react_app_s3_domain_name = module.s3.react_app_s3_domain_name
+  source = "./cloudfront"
+
+  react_app_s3_domain_name    = module.s3.react_app_s3_domain_name
+  event_images_s3_domain_name = module.s3.event_images_domain_name
 }
 
 module "route53" {

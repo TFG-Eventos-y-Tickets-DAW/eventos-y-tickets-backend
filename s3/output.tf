@@ -17,3 +17,7 @@ output "react_app_s3_domain_name" {
 output "react_app_s3_website_domain_name" {
   value = aws_s3_bucket.react_app_bucket.website_domain
 }
+
+output "event_images_domain_name" {
+  value = aws_s3_bucket.event_images_bucket.bucket_domain_name
+}
