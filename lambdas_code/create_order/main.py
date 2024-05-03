@@ -72,9 +72,10 @@ def lambda_handler(event, _):
     headers = event.get("headers", {})
     current_auth_user = get_user_data_from_jwt(headers, jwt_secret)
     attendee = body.get("attendee")
+    print("Current auth user: ", current_auth_user)
 
     # Scenario where the buyer user is already registered
-    if current_auth_user.get("email") == attendee.get("email"):
+    if current_auth_user:
         user_id = current_auth_user.get("userId")
     else:
         # Different attendee email than the auth user (or no auth user at all)
