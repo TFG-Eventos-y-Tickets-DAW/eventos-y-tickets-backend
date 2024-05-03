@@ -349,7 +349,7 @@ module "public_events_lambda" {
   }
 
   timeout     = 12
-  memory_size = 256
+  memory_size = 512
 }
 
 module "delete_event_lambda" {
