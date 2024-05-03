@@ -39,7 +39,7 @@ module "sign_in_lambda" {
   }
 
   timeout     = 12
-  memory_size = 1024
+  memory_size = 2048
 }
 
 module "sign_up_lambda" {
@@ -78,7 +78,7 @@ module "sign_up_lambda" {
   }
 
   timeout     = 12
-  memory_size = 1024
+  memory_size = 2048
 }
 
 module "about_me_lambda" {
@@ -151,7 +151,7 @@ module "generate_presigned_url_lambda" {
   }
 
   timeout     = 12
-  memory_size = 256
+  memory_size = 328
 }
 
 module "create_event_lambda" {
