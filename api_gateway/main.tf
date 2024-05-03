@@ -115,7 +115,7 @@ module "api_gateway" {
       timeout_milliseconds   = 12000
     }
 
-    "GET /api/v1/order/paypal/{id}" = {
+    "GET /api/v1/order/{order_id}/paypal/{paypal_id}" = {
       lambda_arn             = var.get_paypal_order_status_lambda_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000

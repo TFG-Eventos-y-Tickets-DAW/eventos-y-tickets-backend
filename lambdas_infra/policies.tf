@@ -108,6 +108,11 @@ resource "aws_iam_role_policy_attachment" "allow_rds_attachment_send_payouts_lam
   policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "allow_rds_attachment_get_paypal_lambda" {
+  role       = module.get_paypal_order_status_lambda.lambda_role_name
+  policy_arn = aws_iam_policy.allow_rds_connection_policy.arn
+}
+
 data "aws_ssm_parameter" "jwt_secret_sign_parameter" {
   name = "/jwt/creds/secret"
 }

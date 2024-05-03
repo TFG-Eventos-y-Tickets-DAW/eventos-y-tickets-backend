@@ -38,6 +38,7 @@ def lambda_handler(event, _):
     order_id = event.get("pathParameters", {}).get("id")
     event_id = body.get("eventId")
     order_session, error = get_order_session(order_id, event_id)
+    hostOrigin = event.get("headers", {}).get("origin", "")
 
     if error:
         return error
@@ -92,6 +93,7 @@ def lambda_handler(event, _):
             order_id=database_order_id,
             event_id=event_id,
             order_session_id=order_id,
+            origin=hostOrigin
         )
 
         if paypal_status != PAYPAL_COMPLETED and paypal_status != PAYER_ACTION_REQUIRED:

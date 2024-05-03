@@ -67,6 +67,7 @@ class PayPalClient:
         order_id,
         event_id,
         order_session_id,
+        origin,
     ):
         # reference id to be used on paypal + our side:
         reference_id = f"{order_session_id}-{order_id}-{event_id}"
@@ -92,7 +93,7 @@ class PayPalClient:
                 }
             ],
             "payment_source": self._build_payment_source_by_payment_method(
-                payment_method, payment_method_details
+                payment_method, payment_method_details, origin
             ),
         }
 
@@ -412,7 +413,7 @@ class PayPalClient:
             )
 
     def _build_payment_source_by_payment_method(
-        self, payment_method, payment_method_details
+        self, payment_method, payment_method_details, origin
     ):
         if payment_method == CREDIT:
             return {
@@ -422,8 +423,8 @@ class PayPalClient:
                     "security_code": payment_method_details.get("cvv"),
                     "expiry": payment_method_details.get("expiry"),
                     "experience_context": {
-                        "return_url": "https://example.com/returnUrl",
-                        "cancel_url": "https://example.com/cancelUrl",
+                        "return_url": f"{origin}/paypal/capture",
+                        "cancel_url": f"{origin}/paypal/capture/cancel",
                     },
                 }
             }
@@ -437,8 +438,8 @@ class PayPalClient:
                     "landing_page": "LOGIN",
                     "shipping_preference": "GET_FROM_FILE",
                     "user_action": "PAY_NOW",
-                    "return_url": "https://example.com/returnUrl",  # TBD return url
-                    "cancel_url": "https://example.com/cancelUrl",  # TBD cancel url
+                    "return_url": f"{origin}/paypal/capture",
+                    "cancel_url": f"{origin}/paypal/capture/cancel",
                 }
             }
         }
