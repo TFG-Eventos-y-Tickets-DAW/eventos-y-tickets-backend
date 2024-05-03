@@ -549,7 +549,7 @@ module "get_paypal_order_status_lambda" {
   }
 
   timeout     = 12
-  memory_size = 256
+  memory_size = 512
 }
 
 module "capture_paypal_order_lambda" {
