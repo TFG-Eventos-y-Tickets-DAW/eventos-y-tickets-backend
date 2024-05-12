@@ -9,6 +9,7 @@ from common.rds_conn import create_rds_connection
 import humps
 
 connection = create_rds_connection()
+connection.autocommit(True)
 jwt_secret = get_jwt_secret()
 
 
