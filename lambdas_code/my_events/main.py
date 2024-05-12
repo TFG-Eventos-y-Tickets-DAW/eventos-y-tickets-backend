@@ -1,13 +1,10 @@
-from common.constants.event_categories import EVENT_CATEGORIES_NAME_BY_ID
-from common.constants.event_statuses import EVENT_STATUS_NAME_BY_ID
-from common.constants.ticket_types import TICKET_TYPE_NAME_BY_ID
+from common.constants.event_statuses import DELETED_ID
 from common.event_utils import (
     convert_datetime_to_strings,
     format_and_prepare_event_details,
     get_user_id_from_jwt,
 )
-from common.http_utils import http_error_response, generic_server_error
-from common.jwt_utils import get_jwt_secret, decode_jwt_token
+from common.jwt_utils import get_jwt_secret
 from common.rds_conn import create_rds_connection
 import humps
 
@@ -37,8 +34,8 @@ def format_events(event_details: dict):
 
 def fetch_all_events_by_user_id(owner_id):
     with connection.cursor() as cur:
-        select_sql = "SELECT * FROM `events` WHERE `owner_id`=%s"
-        cur.execute(select_sql, (owner_id,))
+        select_sql = "SELECT * FROM `events` WHERE `owner_id`=%s AND `status_id` != %s"
+        cur.execute(select_sql, (owner_id, DELETED_ID))
 
         result = cur.fetchall()
 

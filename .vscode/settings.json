@@ -1,3 +1,4 @@
 {
-    "python.analysis.extraPaths": ["./lambdas_code/layers/common/python"]
+    "python.analysis.extraPaths": ["./lambdas_code/layers/common/python"],
+    "circleci.persistedProjectSelection": []
 }
