@@ -197,6 +197,8 @@ def update_event(body, event_details):
                 (
                     new_img_src
                     if event_details["img_src"] != new_img_src
+                    and new_img_src != ""
+                    and new_img_src is not None
                     else event_details["img_src"]
                 ),
                 (
