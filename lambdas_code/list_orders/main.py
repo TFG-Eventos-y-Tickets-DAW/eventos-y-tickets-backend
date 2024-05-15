@@ -17,6 +17,7 @@ import os
 from common.schema import is_valid_schema_request
 
 connection = create_rds_connection()
+connection.autocommit(True)
 jwt_secret = get_jwt_secret()
 dynamodb_resource = boto3.resource("dynamodb")
 event_views_table = dynamodb_resource.Table(
